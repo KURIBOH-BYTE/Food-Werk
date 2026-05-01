@@ -336,11 +336,11 @@ python -m pytest tests/ -v
 
 ## 👥 Team & Contributions
 
-| Name           | Contribution                                      |
-|----------------|---------------------------------------------------c
-| Roy Fluckiger  | Database & ORM + documentation                    | 
-| Fabrice Balzan | NiceGUI UI + documentation                        | 
-| Ryan Wolf      | Business logic + documentation                    | 
+| Name         | Contribution               |
+|--------------|----------------------------|
+| Roy Fluckiger | Database & ORM + documentation |
+| Fabrice Balzan| NiceGUI UI + documentation     |
+| Ryan Wolf     | Business logic + documentation |
 
 ---
 
