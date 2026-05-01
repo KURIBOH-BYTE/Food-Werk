@@ -140,6 +140,9 @@ Admins and employees can:
 
 The application uses **SQLModel** to map domain objects to a SQLite database.
 
+<img width="1668" height="1597" alt="image" src="https://github.com/user-attachments/assets/c5fb7d40-3db5-4861-a6c1-3815f90bb24c" />
+
+
 ### Entities
 - `User`
 - `Category`
