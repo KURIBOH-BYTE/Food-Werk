@@ -337,8 +337,10 @@ python -m pytest tests/ -v
 ## 👥 Team & Contributions
 
 | Name           | Contribution                                      |
-|----------------|---------------------------------------------------|
-| Roy Fluckiger  | Full implementation — architecture, UI, services, database, tests |
+|----------------|---------------------------------------------------c
+| Roy Fluckiger  | Database & ORM + documentation                    | 
+| Fabrice Balzan | NiceGUI UI + documentation                        | 
+| Ryan Wolf      | Business logic + documentation                    | 
 
 ---
 
