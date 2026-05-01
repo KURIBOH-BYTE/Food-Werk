@@ -98,6 +98,9 @@ Admins and employees can:
 
 ## 🧩 Use Cases
 
+<img width="886" height="512" alt="image" src="https://github.com/user-attachments/assets/09549dbe-0a81-426a-853b-acd7983d6a21" />
+
+
 ### Main Use Cases
 - Browse Menu (Customer)
 - Add to Cart / Customize (Customer)
