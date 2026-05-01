@@ -270,29 +270,42 @@ FoodWerk/
 
 ## 🚀 How to Run
 
-### 1. Project Setup
-
-Python 3.9 or higher is required.
+### 1. Clone the repository
 
 ```bash
-# Create and activate virtual environment
-python3 -m venv .venv
-source .venv/bin/activate        # macOS/Linux
-# .venv\Scripts\Activate         # Windows
+git clone https://github.com/DEIN-USERNAME/foodwerk.git
+cd foodwerk
+```
 
-# Install dependencies
+### 2. Project Setup
+
+- Python 3.13 is required
+- Create and activate a virtual environment:
+
+#### macOS / Linux
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+#### Windows
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+- Install dependencies:
+```bash
 pip install -r requirements.txt
 ```
 
-### 2. Launch
+### 3. Launch
+- Start the FoodWerk Website:
 
 ```bash
-python -m foodwerk
-```
+py -m foodwerk
+``` 
+- If the application does not open automatically, open the URL printed in the console (default: http://localhost:8080).
 
-Open the URL printed in the console (default: http://localhost:8080).
-
-### 3. Demo Accounts
+### 4. Demo Accounts
 
 | Role     | Email               | Password      |
 |----------|---------------------|---------------|
@@ -301,7 +314,7 @@ Open the URL printed in the console (default: http://localhost:8080).
 
 Register a new account to use the customer features.
 
-### 4. Usage
+### 5. Usage
 
 **Order food:**
 1. Go to **Menu** and browse by category.
