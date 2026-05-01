@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200">
+  <rect width="300" height="200" rx="15" ry="15" fill="#D4943E"/>
+  <ellipse cx="120" cy="85" rx="30" ry="20" fill="#F5C842" stroke="#C88420" stroke-width="2"/>
+  <ellipse cx="180" cy="85" rx="30" ry="20" fill="#F5C842" stroke="#C88420" stroke-width="2"/>
+  <ellipse cx="150" cy="120" rx="30" ry="20" fill="#F5C842" stroke="#C88420" stroke-width="2"/>
+  <text x="150" y="170" font-size="16" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-weight="bold">NUGGETS</text>
+</svg>
