@@ -273,7 +273,7 @@ FoodWerk/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/DEIN-USERNAME/foodwerk.git
+git clone https://github.com/KURIBOH-BYTE/Food-Werk.git
 cd foodwerk
 ```
 
