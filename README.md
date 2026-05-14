@@ -158,7 +158,53 @@ employees can:
 - **Composition Root:** `FoodWerkApplication` wires all dependencies (DAOs, Services, Controllers, Pages) in one place.
 
 ---
+# Klassendiagramm
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/db0fbf8e-4d20-44f2-b236-5d1f87b66676" />
 
+Das Klassendiagramm zeigt die vollständige Architektur von FoodWerk aufgeteilt in vier Schichten.
+
+## Domain Model (Entities)
+
+Die Datenbankklassen basieren auf SQLModel und werden direkt in die SQLite-Datenbank gespeichert. Folgende Entities sind vorhanden:
+
+- **User** — Benutzer mit Rolle (admin, employee, customer)
+- **DeliveryAddress** — Lieferadressen eines Benutzers
+- **Category** — Menükategorien (z.B. Burgers, Pizza)
+- **Ingredient** — Zutaten
+- **MenuItem** — Menüartikel mit Preis, Verfügbarkeit und Rabatt
+- **MenuItemIngredient** — Verbindungstabelle zwischen MenuItem und Ingredient
+- **Order** — Bestellung eines Benutzers
+- **OrderItem** — Einzelne Position innerhalb einer Bestellung
+
+## DAO Layer (Data Access Layer)
+
+Die DAO-Klassen (Data Access Objects) sind für den Datenbankzugriff zuständig. Alle DAOs erben von `BaseDAO` und verwenden SQLModel-Sessions.
+
+- **UserDAO** — CRUD-Operationen für Benutzer
+- **DeliveryAddressDAO** — Verwaltung von Lieferadressen
+- **CategoryDAO** — Abfrage von Kategorien
+- **MenuItemDAO** — Verwaltung von Menüartikeln inkl. Verfügbarkeit, Specials und Rabatte
+- **OrderDAO** — Erstellen und Abfragen von Bestellungen
+
+## Service Layer (Business Logic)
+
+Die Services enthalten die Geschäftslogik. Sie nutzen die DAOs für den Datenzugriff und erben von `BaseService`.
+
+- **AuthService** — Registrierung, Login, Passwortverwaltung, Lieferadressen
+- **MenuService** — Menüverwaltung, Specials, Rabatte
+- **OrderService** — Bestellerstellung und Statusverwaltung
+- **CartService** — In-Memory Warenkorb mit automatischem 10% Rabatt ab CHF 50
+- **CartItem** — Einzelne Position im Warenkorb
+- **PaymentService** — Stripe Checkout Integration
+
+## Controller Layer (UI-Koordination)
+
+Die Controller vermitteln zwischen der UI-Schicht (NiceGUI Pages) und den Services.
+
+- **AuthController** — Login, Registrierung, Session-Verwaltung
+- **ShoppingController** — Menü, Warenkorb, Bestellabwicklung
+- **AdminController** — Bestellverwaltung, Menüverwaltung, Specials
+- **PaymentController** — Stripe Checkout Flow
 ## 🗄️ Database and ORM
 
 The application uses **SQLModel** to map domain objects to a SQLite database.
