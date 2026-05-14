@@ -234,6 +234,9 @@ class AdminController:
             is_special, discount_price, discount_until, created_by_user_id,
         )
 
+    def delete_menu_item(self, item_id: int) -> bool:
+        return self._menu.delete_menu_item(item_id)
+
     def update_item_image(self, item_id: int, image_url: str) -> MenuItem:
         return self._menu.update_image_url(item_id, image_url)
 
@@ -294,7 +297,7 @@ class PaymentController:
             cart=cart,
             order_type=pending["order_type"],
             delivery_address_id=pending.get("delivery_address_id"),
-            pickup_time=pending.get("pickup_time"),
+            pickup_time=pending.get("pickup_time") or None,
             notes=pending.get("notes"),
         )
         _save_cart(cart)

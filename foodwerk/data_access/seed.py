@@ -138,21 +138,4 @@ class FoodWerkSeeder:
             MenuItem(category_id=cats["desserts"].id, name="Brownie", description="Warm chocolate brownie", price=5.90, image_url="/static/images/Brownie.png"),
             MenuItem(category_id=cats["desserts"].id, name="Cheesecake", description="Creamy New York style", price=6.50, image_url="/static/images/cheesecake.png"),
         ]
-        specials = [
-            MenuItem(
-                category_id=cats["specials"].id, name="Summer Burger",
-                description="Seasonal special with avocado & grilled pineapple", price=15.90,
-                image_url="/static/images/classic_burger.png",
-                is_special=True,
-                discount_price=11.90,
-                discount_until=now + timedelta(days=30),
-            ),
-            MenuItem(
-                category_id=cats["specials"].id, name="Truffle Pizza",
-                description="Pizza with truffle oil & mushrooms — limited time!", price=19.90,
-                image_url="/static/images/pizza.png",
-                is_special=True,
-                discount_price=14.90,
-            ),
-        ]
-        session.add_all(sides + drinks + desserts + specials)
+        session.add_all(sides + drinks + desserts)

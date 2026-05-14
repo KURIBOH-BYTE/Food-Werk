@@ -39,6 +39,9 @@ class MenuService(BaseService):
     def get_specials(self) -> list[MenuItem]:
         return self.menu_item_dao.get_specials()
 
+    def delete_menu_item(self, item_id: int) -> bool:
+        return self.menu_item_dao.delete(item_id)
+
     def update_image_url(self, item_id: int, image_url: str) -> MenuItem:
         item = self.menu_item_dao.update_image_url(item_id, image_url)
         if not item:

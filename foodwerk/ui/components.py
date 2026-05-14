@@ -74,7 +74,7 @@ FW_CSS = """
   .fw-page { padding-top: 64px; min-height: 100vh; background: var(--fw-dark); width: 100%; }
   .fw-section { padding: 80px 60px; }
   .fw-section-label { font-size: 11px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--fw-red); margin-bottom: 12px; }
-  .fw-section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px, 6vw, 80px); line-height: 0.95; color: var(--fw-cream); margin-bottom: 48px; }
+  .fw-section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(32px, 4vw, 52px); line-height: 0.95; color: var(--fw-cream); margin-bottom: 16px; }
   .fw-hero { width: 100%; min-height: 92vh; display: flex; align-items: center; background: linear-gradient(135deg, #0a0a0a 0%, #1a0800 60%, #2a0f00 100%); position: relative; overflow: hidden; }
   .fw-hero-bg { position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 28vw; color: rgba(255,255,255,0.025); line-height: 1; top: 50%; left: 50%; transform: translate(-50%, -50%); white-space: nowrap; user-select: none; pointer-events: none; }
   .fw-hero-content { padding: 0 60px; position: relative; z-index: 2; max-width: 680px; }
@@ -139,13 +139,18 @@ FW_CSS = """
   .fw-special-price { font-size: 20px; font-weight: 700; color: var(--fw-red); }
   .fw-special-original { font-size: 13px; color: var(--fw-gray); text-decoration: line-through; margin-left: 8px; }
   .fw-card { background: var(--fw-dark2) !important; border: 1px solid var(--fw-border) !important; border-radius: 0 !important; color: var(--fw-cream) !important; }
-  .fw-page-header { width: 100%; background: var(--fw-dark2); padding: 56px 60px; border-bottom: 1px solid var(--fw-border); }
+  .fw-page-header { width: 100%; background: var(--fw-dark2); padding: 24px 60px; border-bottom: 1px solid var(--fw-border); }
   .fw-order-card { background: var(--fw-dark2); border: 1px solid var(--fw-border); padding: 20px; margin-bottom: 12px; }
   .fw-admin-card { background: var(--fw-dark2) !important; border: 1px solid var(--fw-border) !important; border-radius: 0 !important; color: var(--fw-cream) !important; margin-bottom: 12px; }
   .q-field__control { background: rgba(255,255,255,0.05) !important; }
   .q-field__label { color: rgba(245,240,232,0.6) !important; }
   input, textarea { color: var(--fw-cream) !important; }
   .q-select__dropdown-icon { color: var(--fw-cream) !important; }
+  .q-field__native, .q-field__input { color: var(--fw-cream) !important; }
+  .q-menu { background: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.1) !important; }
+  .q-item { color: var(--fw-cream) !important; font-size: 16px !important; padding: 12px 16px !important; }
+  .q-item:hover, .q-item--active { background: rgba(230,51,18,0.15) !important; color: #fff !important; }
+  .q-item--active { color: var(--fw-red) !important; font-weight: 700 !important; }
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--fw-dark); }
   ::-webkit-scrollbar-thumb { background: var(--fw-red); }

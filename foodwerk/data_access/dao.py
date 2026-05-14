@@ -179,6 +179,15 @@ class MenuItemDAO(BaseDAO):
             session.refresh(item)
             return item
 
+    def delete(self, item_id: int) -> bool:
+        with self.session() as session:
+            item = session.get(MenuItem, item_id)
+            if not item:
+                return False
+            session.delete(item)
+            session.commit()
+            return True
+
     def create(self, item: MenuItem) -> MenuItem:
         with self.session() as session:
             session.add(item)

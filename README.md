@@ -1,4 +1,5 @@
 # 🍔 FoodWerk – Fast Food Delivery & Pickup (Browser App)
+<img width="1875" height="966" alt="image" src="https://github.com/user-attachments/assets/3201e041-e9b6-4050-8675-95693297d180" />
 
 ---
 
@@ -25,16 +26,21 @@ Fast food restaurants often rely on manual order taking, which leads to errors, 
 
 The application allows customers to:
 - Browse a menu with categories (Burgers, Pizza, Sides, Drinks, Desserts)
-- Customize items (remove ingredients, add extras, choose flavors)
+- Customize items (remove ingredients, add extras)
 - Manage a shopping cart
 - Choose between delivery and pickup
 - Pay securely with a card (test card simulation)
 - Track their order status
 
-Admins and employees can:
+Admins can:
+- Create and manage special offers
 - Manage the menu (availability, new items)
 - View and update all orders
-- Create and manage special offers
+  
+employees can:
+- Manage the menu (availability, new items)
+- View and update all orders
+
 
 ---
 
@@ -80,15 +86,23 @@ Admins and employees can:
 
 ---
 
-### 6. Manage Orders (Admin)
-**As an admin, I want to view all orders and update their status.**
+### 6. Manage Orders (Admin/Employee)
+**As an admin or employee, I want to view all orders and update their status.**
 
 - **Inputs:** order ID, new status
 - **Outputs:** updated order
 
 ---
 
-### 7. Manage Specials (Admin)
+### 7. Manage Menu (Admin/Employee)
+**As an admin or employee, I want to manage the availability of items to keep the menu up to date.**
+
+- **Inputs:** availability status (in stock/out of stock).
+- **Outputs:** active special visible on the menu and specials page
+
+---
+
+### 8. Manage Specials (Admin)
 **As an admin, I want to create time-limited special offers for menu items.**
 
 - **Inputs:** menu item, special price, start/end date, description
@@ -97,6 +111,8 @@ Admins and employees can:
 ---
 
 ## 🧩 Use Cases
+<img width="862" height="510" alt="image" src="https://github.com/user-attachments/assets/950faebd-7fe4-40ee-b999-d42891b6a1b8" />
+
 
 ### Main Use Cases
 - Browse Menu (Customer)
@@ -114,6 +130,11 @@ Admins and employees can:
 - Admin
 
 ---
+### Wireframe Wireframes / Mockups
+<img width="1319" height="879" alt="image" src="https://github.com/user-attachments/assets/db188b1d-c988-410e-bda9-c552d4d0d9f1" />
+
+<img width="555" height="894" alt="image" src="https://github.com/user-attachments/assets/d8f10c6d-cd10-43a9-a337-7e522199dce5" />
+
 
 ## 🏛️ Architecture
 
@@ -296,7 +317,7 @@ pip install -r requirements.txt
 - Start the FoodWerk Website:
 
 ```bash
-py -m foodwerk
+python3 -m foodwerk
 ``` 
 - If the application does not open automatically, open the URL printed in the console (default: http://localhost:8080).
 
@@ -325,23 +346,75 @@ Register a new account to use the customer features.
 3. Manage orders, menu availability, and specials.
 
 ---
+# Testing
 
-## 🧪 Testing
+Die Tests sind in drei Schichten aufgeteilt und befinden sich im Ordner `tests/`.
+
+## Ausführen
 
 ```bash
-python -m pytest tests/ -v
+# Alle Tests
+pytest
+
+# Einzelne Datei
+pytest tests/test_unit.py
+pytest tests/test_db.py
+pytest tests/test_integration.py
+
+# Mit Output
+pytest -v
 ```
 
-**15 tests across 6 services:**
+## Teststruktur
 
-| File                     | Tests | What is tested                                      |
-|--------------------------|-------|-----------------------------------------------------|
-| `test_auth_service.py`   | 2     | User registration, login                            |
-| `test_cart_service.py`   | 5     | Add, remove, update quantity, total, serialization  |
-| `test_menu_service.py`   | 2     | Get categories, filter available items              |
-| `test_order_service.py`  | 3     | Pickup order, delivery order, status update         |
-| `test_special_service.py`| 2     | Create special, deactivate special                  |
-| `test_review_service.py` | 1     | Create review                                       |
+### `test_unit.py` — Unit Tests
+
+Testet die Geschäftslogik von `CartService` isoliert, ohne Datenbank.
+
+| Test | Beschreibung |
+|---|---|
+| `test_subtotal_empty_cart` | Leerer Warenkorb hat Subtotal 0.0 |
+| `test_subtotal_single_item` | Subtotal wird korrekt berechnet |
+| `test_discount_applied_above_50` | 10% Rabatt wird ab CHF 50.01 angewendet |
+| `test_no_discount_exactly_50` | Kein Rabatt bei genau CHF 50.00 |
+| `test_no_discount_below_50` | Kein Rabatt unter CHF 50.00 |
+| `test_total_reflects_discount` | Total = Subtotal - Rabatt |
+
+### `test_db.py` — Datenbank Tests
+
+Testet DAOs direkt mit einer In-Memory SQLite Datenbank (kein externes Setup nötig).
+
+| Test | Beschreibung |
+|---|---|
+| `test_menu_query_returns_seeded_items` | Verfügbare Menüartikel werden korrekt abgefragt |
+| `test_unavailable_items_excluded_from_available_query` | Nicht verfügbare Artikel werden gefiltert |
+| `test_saving_order_persists_order_and_items` | Bestellung und Bestellpositionen werden gespeichert |
+
+### `test_integration.py` — Integrationstests
+
+Testet den vollständigen Checkout-Ablauf mit `MenuService`, `CartService` und `OrderService` zusammen.
+
+| Test | Beschreibung |
+|---|---|
+| `test_checkout_single_item_creates_order` | Bestellung mit einem Artikel wird erstellt |
+| `test_checkout_multiple_items_applies_discount` | Rabatt wird bei Subtotal > CHF 50 angewendet |
+| `test_checkout_exactly_50_no_discount` | Kein Rabatt bei exakt CHF 50.00 |
+
+## Technologie
+
+- **pytest** — Test-Framework
+- **SQLModel** — ORM für Modelle und Queries
+- **SQLite In-Memory** (`sqlite:///:memory:`) — temporäre Datenbank pro Test, kein externes Setup erforderlich
+
+## Rabattlogik
+
+Der `CartService` berechnet automatisch einen Mengenrabatt:
+
+```
+Subtotal > CHF 50.00  →  10% Rabatt
+Subtotal ≤ CHF 50.00  →  kein Rabatt
+```
+
 
 ---
 

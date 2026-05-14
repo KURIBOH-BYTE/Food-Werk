@@ -549,15 +549,15 @@ class Pages:
                 ui.navigate.to("/cart")
                 return
 
-            ui.html('<div class="fw-page"><div class="fw-page-header"><div class="fw-section-label">Fast geschafft</div><div class="fw-section-title">KASSE</div></div>')
-
-            with ui.element("div").style("padding:48px 60px;max-width:640px;margin:0 auto"):
-                ui.html(f'<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:#E63312;margin-bottom:24px">Total: {cart.total:.2f} CHF</div>')
+            with ui.element("div").style("padding-top:64px;background:#111111;width:100%"):
+                ui.html('<div style="background:#1a1a1a;padding:20px 60px;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#E63312;margin-bottom:6px">Fast geschafft</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;line-height:1;color:#F5F0E8">KASSE</div></div>')
+            with ui.element("div").style("padding:24px 60px;max-width:640px;margin:0 auto;background:#111111"):
+                ui.html(f'<div style="font-family:Bebas Neue,sans-serif;font-size:24px;color:#E63312;margin-bottom:16px">Total: {cart.total:.2f} CHF</div>')
 
                 order_type_toggle = ui.toggle(["delivery", "pickup"], value="pickup").props("color=red")
-                address_box = ui.column().classes("w-full").style("margin-top:20px")
-                pickup_box = ui.column().classes("w-full").style("margin-top:20px")
-                notes_in = ui.textarea("Notizen (optional)").classes("w-full").style("margin-top:16px")
+                address_box = ui.column().classes("w-full").style("margin-top:16px")
+                pickup_box = ui.column().classes("w-full").style("margin-top:16px")
+                notes_in = ui.textarea("Notizen (optional)").classes("w-full").style("margin-top:12px;font-size:16px").props("outlined rows=2")
 
                 selected_address_id: dict = {"value": None}
                 street_in = house_nr_in = floor_in = city_in = postal_in = label_in = pickup_time_in = None
@@ -599,17 +599,26 @@ class Pages:
                                 ui.label("Oder neue Adresse eingeben").style("font-size:11px;font-weight:700;letter-spacing:3px;color:#888;text-transform:uppercase;margin-bottom:12px")
 
                             with new_form:
-                                label_in = ui.input("Bezeichnung (optional, z.B. Zuhause)").classes("w-full").style("margin-bottom:8px")
-                                street_in = ui.input("Strasse").classes("w-full")
-                                house_nr_in = ui.input("Hausnummer").classes("w-full").style("margin-top:8px")
-                                floor_in = ui.input("Stockwerk (optional)").classes("w-full").style("margin-top:8px")
-                                city_in = ui.input("Stadt").classes("w-full").style("margin-top:8px")
-                                postal_in = ui.input("Postleitzahl").classes("w-full").style("margin-top:8px")
+                                label_in = ui.input("Bezeichnung (optional, z.B. Zuhause)").classes("w-full").style("margin-bottom:8px;font-size:16px").props("outlined dense=false")
+                                street_in = ui.input("Strasse").classes("w-full").style("font-size:16px").props("outlined dense=false")
+                                house_nr_in = ui.input("Hausnummer").classes("w-full").style("margin-top:8px;font-size:16px").props("outlined dense=false")
+                                floor_in = ui.input("Stockwerk (optional)").classes("w-full").style("margin-top:8px;font-size:16px").props("outlined dense=false")
+                                city_in = ui.input("Stadt").classes("w-full").style("margin-top:8px;font-size:16px").props("outlined dense=false")
+                                postal_in = ui.input("Postleitzahl").classes("w-full").style("margin-top:8px;font-size:16px").props("outlined dense=false")
 
                     else:
                         with pickup_box:
                             ui.label("Abholzeit").style("font-family:Bebas Neue,sans-serif;font-size:22px;color:#F5F0E8;margin-bottom:12px")
-                            pickup_time_in = ui.input("z.B. 18:30").classes("w-full")
+                            from datetime import datetime as _now, timedelta as _td
+                            _base = _now.now() + _td(minutes=30)
+                            _base = _base.replace(second=0, microsecond=0)
+                            _mins = ((_base.minute + 14) // 15) * 15
+                            if _mins >= 60:
+                                _base = _base.replace(hour=_base.hour + 1, minute=_mins - 60)
+                            else:
+                                _base = _base.replace(minute=_mins)
+                            _slots = [(_base + _td(minutes=15 * i)).strftime("%H:%M") for i in range(8)]
+                            pickup_time_in = ui.select(_slots, value=_slots[0], label="Abholzeit wählen").classes("w-full").style("font-size:16px").props("outlined")
 
                 order_type_toggle.on_value_change(lambda: update_form())
                 update_form()
@@ -617,11 +626,19 @@ class Pages:
                 def go_to_payment() -> None:
                     addr_id = selected_address_id["value"]
 
+                    if order_type_toggle.value == "pickup":
+                        if not pickup_time_in or not pickup_time_in.value:
+                            ui.notify("Bitte eine Abholzeit auswählen.", color="negative")
+                            return
+
                     if order_type_toggle.value == "delivery" and not addr_id:
-                        # Validate and save new address
-                        if not all([street_in and street_in.value, house_nr_in and house_nr_in.value,
-                                    city_in and city_in.value, postal_in and postal_in.value]):
-                            ui.notify("Bitte alle Adressfelder ausfüllen.", color="negative")
+                        missing = []
+                        if not street_in or not street_in.value.strip(): missing.append("Strasse")
+                        if not house_nr_in or not house_nr_in.value.strip(): missing.append("Hausnummer")
+                        if not city_in or not city_in.value.strip(): missing.append("Stadt")
+                        if not postal_in or not postal_in.value.strip(): missing.append("Postleitzahl")
+                        if missing:
+                            ui.notify(f"Pflichtfeld(er) fehlen: {', '.join(missing)}", color="negative")
                             return
                         try:
                             new_addr = auth.add_delivery_address(
@@ -642,14 +659,12 @@ class Pages:
                         user_id=user_data["id"],
                         order_type=order_type_toggle.value,
                         delivery_address_id=addr_id,
-                        pickup_time=pickup_time_in.value if pickup_time_in else None,
+                        pickup_time=pickup_time_in.value if pickup_time_in and pickup_time_in.value.strip() else None,
                         notes=notes_in.value or None,
                     )
                     ui.navigate.to("/payment/checkout")
 
-                ui.button("Weiter zur Zahlung →", icon="credit_card", on_click=go_to_payment).classes("fw-btn fw-btn-primary").style("margin-top:32px;padding:14px 32px;width:100%")
-
-            ui.html("</div>")
+                ui.button("Weiter zur Zahlung →", icon="credit_card", on_click=go_to_payment).classes("fw-btn fw-btn-primary").style("margin-top:20px;padding:16px 32px;width:100%;font-size:15px!important")
 
         # ================================================================
         # PAYMENT CHECKOUT — Stripe redirect
@@ -670,14 +685,14 @@ class Pages:
                 ui.navigate.to("/checkout")
                 return
 
-            ui.html('<div class="fw-page"><div class="fw-page-header"><div class="fw-section-label">Sichere Zahlung</div><div class="fw-section-title">BEZAHLEN</div></div>')
+            with ui.element("div").style("padding-top:64px;background:#111111;width:100%"):
+                ui.html('<div style="background:#1a1a1a;padding:20px 60px;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#E63312;margin-bottom:6px">Sichere Zahlung</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;line-height:1;color:#F5F0E8">BEZAHLEN</div></div>')
 
-            with ui.element("div").style("padding:48px 60px;max-width:600px;margin:0 auto"):
+            with ui.element("div").style("padding:24px 60px;max-width:600px;margin:0 auto;background:#111111"):
                 ui.html(f'<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:#E63312;margin-bottom:8px">Betrag: {cart.total:.2f} CHF</div>')
-                ui.html('<div style="font-size:13px;color:#666;margin-bottom:32px">Du wirst zu Stripe weitergeleitet, um die Zahlung sicher abzuschliessen.</div>')
+                ui.html('<div style="font-size:13px;color:#666;margin-bottom:24px">Du wirst zu Stripe weitergeleitet, um die Zahlung sicher abzuschliessen.</div>')
 
-                # Order summary
-                with ui.element("div").style("background:#1a1a1a;border:1px solid rgba(255,255,255,0.08);padding:24px;margin-bottom:28px"):
+                with ui.element("div").style("background:#1a1a1a;border:1px solid rgba(255,255,255,0.08);padding:24px;margin-bottom:24px"):
                     ui.label("Bestellübersicht").style("font-family:Bebas Neue,sans-serif;font-size:20px;color:#F5F0E8;margin-bottom:12px")
                     for item in cart.items:
                         ui.label(f"{item.quantity}× {item.name} — {item.total:.2f} CHF").style("font-size:13px;color:#aaa")
@@ -703,8 +718,6 @@ class Pages:
                   <span>Sichere Zahlung über Stripe — deine Kartendaten werden nie auf unseren Servern gespeichert.</span>
                 </div>
                 """)
-
-            ui.html("</div>")
 
         # ================================================================
         # PAYMENT SUCCESS — Stripe redirects here after payment
@@ -760,8 +773,9 @@ class Pages:
                 ui.navigate.to("/login")
                 return
             order = shopping.get_order(order_id)
-            ui.html('<div class="fw-page"><div class="fw-page-header"><div class="fw-section-label">Deine Bestellung</div><div class="fw-section-title">STATUS</div></div>')
-            with ui.element("div").style("padding:48px 60px;max-width:640px;margin:0 auto"):
+            with ui.element("div").style("padding-top:64px;background:#111111;width:100%"):
+                ui.html('<div style="background:#1a1a1a;padding:20px 60px;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#E63312;margin-bottom:6px">Deine Bestellung</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;line-height:1;color:#F5F0E8">STATUS</div></div>')
+            with ui.element("div").style("padding:24px 60px;max-width:640px;margin:0 auto;background:#111111"):
                 if not order:
                     ui.label("Bestellung nicht gefunden.").style("color:#E63312;font-size:18px")
                 else:
@@ -776,7 +790,6 @@ class Pages:
                         "total_price": order.total_price,
                         "items": items_data,
                     })
-            ui.html("</div>")
 
         # ================================================================
         # SPECIALS
@@ -854,9 +867,9 @@ class Pages:
                 return
             orders = shopping.get_user_orders(user_data["id"])
 
-            ui.html(f'<div class="fw-page"><div class="fw-page-header"><div class="fw-section-label">Dein Konto</div><div class="fw-section-title">{user_data["first_name"].upper()}<br>{user_data.get("last_name","").upper()}</div><div style="font-size:14px;color:#888;margin-top:8px">{user_data["email"]}</div></div>')
-
-            with ui.element("div").style("padding:48px 60px;max-width:820px;margin:0 auto"):
+            with ui.element("div").style("padding-top:64px;background:#111111;width:100%"):
+                ui.html(f'<div style="background:#1a1a1a;padding:20px 60px;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#E63312;margin-bottom:6px">Dein Konto</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;line-height:1;color:#F5F0E8">{user_data["first_name"].upper()} {user_data.get("last_name","").upper()}</div><div style="font-size:14px;color:#888;margin-top:6px">{user_data["email"]}</div></div>')
+            with ui.element("div").style("padding:24px 60px;max-width:820px;margin:0 auto;background:#111111"):
                 ui.html('<div style="font-family:Bebas Neue,sans-serif;font-size:36px;color:#F5F0E8;letter-spacing:1px;margin-bottom:24px">DEINE BESTELLUNGEN</div>')
                 if not orders:
                     ui.label("Noch keine Bestellungen.").style("color:#888;font-size:15px")
@@ -873,7 +886,6 @@ class Pages:
                             "total_price": o.total_price,
                             "items": items_data,
                         })
-            ui.html("</div>")
 
         # ================================================================
         # ADMIN — DASHBOARD
@@ -886,9 +898,9 @@ class Pages:
                 ui.navigate.to("/")
                 return
 
-            ui.html('<div class="fw-page"><div class="fw-page-header"><div class="fw-section-label">Verwaltung</div><div class="fw-section-title">ADMIN<br>DASHBOARD</div></div>')
-
-            with ui.element("div").style("max-width:1600px;margin:0 auto;padding:48px 60px"):
+            with ui.element("div").style("padding-top:64px;background:#111111;width:100%"):
+                ui.html('<div style="background:#1a1a1a;padding:20px 60px;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#E63312;margin-bottom:6px">Verwaltung</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;line-height:1;color:#F5F0E8">ADMIN DASHBOARD</div></div>')
+            with ui.element("div").style("max-width:1600px;margin:0 auto;padding:24px 60px;background:#111111"):
                 with ui.row().style("gap:12px;margin-bottom:48px"):
                     ui.button("Menü verwalten", on_click=lambda: ui.navigate.to("/admin/menu")).classes("fw-btn fw-btn-primary").style("padding:12px 24px")
                     ui.button("Bestellungen", on_click=lambda: ui.navigate.to("/admin/orders")).classes("fw-btn fw-btn-outline").style("padding:12px 24px")
@@ -923,8 +935,6 @@ class Pages:
 
                                 ui.button("Nächster Status →", on_click=advance).classes("fw-btn fw-btn-primary").style("padding:8px 18px;font-size:11px!important")
 
-            ui.html("</div>")
-
         # ================================================================
         # ADMIN — MENU MANAGER
         # ================================================================
@@ -936,10 +946,10 @@ class Pages:
                 ui.navigate.to("/")
                 return
 
-            ui.html('<div class="fw-page"><div class="fw-page-header"><div class="fw-section-label">Verwaltung</div><div class="fw-section-title">MENÜ<br>VERWALTEN</div></div>')
-
+            with ui.element("div").style("padding-top:64px;background:#111111;width:100%"):
+                ui.html('<div style="background:#1a1a1a;padding:20px 60px;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#E63312;margin-bottom:6px">Verwaltung</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;line-height:1;color:#F5F0E8">MENÜ VERWALTEN</div></div>')
             categories = admin.get_categories()
-            items_container = ui.column().classes("w-full").style("max-width:1600px;margin:0 auto;padding:48px 60px")
+            items_container = ui.column().classes("w-full").style("max-width:1600px;margin:0 auto;padding:24px 60px;background:#111111")
 
             def refresh_items() -> None:
                 items_container.clear()
@@ -971,7 +981,6 @@ class Pages:
                                     )
 
             refresh_items()
-            ui.html("</div>")
 
         # ================================================================
         # ADMIN — ORDER MANAGER
@@ -984,9 +993,9 @@ class Pages:
                 ui.navigate.to("/")
                 return
 
-            ui.html('<div class="fw-page"><div class="fw-page-header"><div class="fw-section-label">Verwaltung</div><div class="fw-section-title">BESTELLUNGEN<br>VERWALTEN</div></div>')
-
-            with ui.element("div").style("max-width:1600px;margin:0 auto;padding:48px 60px"):
+            with ui.element("div").style("padding-top:64px;background:#111111;width:100%"):
+                ui.html('<div style="background:#1a1a1a;padding:20px 60px;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#E63312;margin-bottom:6px">Verwaltung</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;line-height:1;color:#F5F0E8">BESTELLUNGEN VERWALTEN</div></div>')
+            with ui.element("div").style("max-width:1600px;margin:0 auto;padding:24px 60px;background:#111111"):
                 status_filter = ui.select(
                     options={"all": "Alle", "pending": "Ausstehend", "preparing": "In Zubereitung",
                              "ready": "Bereit", "delivered": "Geliefert", "collected": "Abgeholt"},
@@ -1026,8 +1035,6 @@ class Pages:
                 status_filter.on_value_change(lambda: refresh_orders())
                 refresh_orders()
 
-            ui.html("</div>")
-
         # ================================================================
         # ADMIN — SPECIALS MANAGER
         # ================================================================
@@ -1040,68 +1047,94 @@ class Pages:
                 ui.navigate.to("/")
                 return
 
-            ui.html('<div class="fw-page"><div class="fw-page-header"><div class="fw-section-label">Verwaltung</div><div class="fw-section-title">SPECIALS &<br>RABATTE</div></div>')
-
+            with ui.element("div").style("padding-top:64px;background:#111111;width:100%"):
+                ui.html('<div style="background:#1a1a1a;padding:20px 60px;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#E63312;margin-bottom:6px">Verwaltung</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;line-height:1;color:#F5F0E8">SPECIALS & RABATTE</div></div>')
             all_items = admin.get_all_menu_items()
             item_options = {i.id: f"{i.name} ({i.price:.2f} CHF)" for i in all_items}
 
             IMAGES_DIR = _Path(__file__).parent.parent.parent / "frontend" / "static" / "images"
 
-            with ui.element("div").style("padding:48px 60px;max-width:960px;margin:0 auto"):
+            with ui.element("div").style("padding:24px 60px;max-width:960px;margin:0 auto;background:#111111"):
 
-                # ---- SECTION 1: Special markieren ----
-                ui.html('<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:#F5F0E8;letter-spacing:1px;margin-bottom:16px">SPECIAL MARKIEREN</div>')
-                ui.html('<div style="font-size:13px;color:#888;margin-bottom:20px">Als Special markierte Artikel erscheinen auf der Specials-Seite mit dem SPECIAL-Badge.</div>')
+                # ---- SECTION 1: Neues Special erstellen ----
+                ui.html('<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:#F5F0E8;letter-spacing:1px;margin-bottom:16px">NEUES SPECIAL ERSTELLEN</div>')
+                ui.html('<div style="font-size:13px;color:#888;margin-bottom:20px">Fülle alle Pflichtfelder (*) aus um ein neues Special zu erstellen.</div>')
+
+                categories = admin.get_categories()
+                cat_options = {c.id: c.name for c in categories}
+
+                specials_list_container = ui.column().classes("w-full")
+                new_uploaded_url: dict = {"value": None}
 
                 with ui.element("div").classes("fw-admin-card").style("padding:28px"):
-                    special_item_sel = ui.select(options=item_options, label="Menüartikel wählen").classes("w-full")
-                    specials_list_container = ui.column().classes("w-full").style("margin-top:20px")
+                    sp_name_in = ui.input("Name *").classes("w-full").props("outlined dense=false").style("font-size:16px")
+                    sp_cat_in = ui.select(options=cat_options, label="Kategorie *").classes("w-full").style("margin-top:12px;font-size:16px").props("outlined")
+                    sp_price_in = ui.number("Normalpreis (CHF) *", min=0.01, step=0.10).classes("w-full").style("margin-top:12px;font-size:16px").props("outlined dense=false")
+                    sp_desc_in = ui.textarea("Beschreibung (optional)").classes("w-full").style("margin-top:12px;font-size:16px").props("outlined rows=2")
+                    sp_disc_in = ui.number("Rabattpreis (CHF, optional)", min=0.01, step=0.10).classes("w-full").style("margin-top:12px;font-size:16px").props("outlined dense=false")
 
-                    # --- Bild-Upload ---
-                    ui.html('<div style="font-size:13px;color:#aaa;margin:20px 0 8px">Bild hochladen (optional — ersetzt das bisherige Bild des Artikels)</div>')
-                    uploaded_image_url: dict = {"value": None}
-                    upload_preview = ui.html("").style("margin-top:8px")
+                    with ui.input("Rabatt gültig bis (optional)").classes("w-full").style("margin-top:12px;font-size:16px").props("outlined dense=false") as sp_until_in:
+                        with ui.menu().props("no-parent-event") as sp_menu:
+                            with ui.date().bind_value(sp_until_in):
+                                pass
+                        with sp_until_in.add_slot("append"):
+                            ui.icon("edit_calendar").on("click", sp_menu.open).classes("cursor-pointer").style("color:#E63312")
 
-                    def handle_image_upload(e) -> None:
-                        if not special_item_sel.value:
-                            ui.notify("Bitte zuerst einen Artikel auswählen.", color="negative")
-                            return
+                    ui.html('<div style="font-size:13px;color:#aaa;margin:16px 0 8px">Bild hochladen (optional)</div>')
+                    new_upload_preview = ui.html("").style("margin-top:8px")
+
+                    def handle_new_image(e) -> None:
                         suffix = _Path(e.name).suffix.lower()
-                        filename = f"special_{special_item_sel.value}{suffix}"
+                        filename = f"special_new_{int(__import__('time').time())}{suffix}"
                         dest = IMAGES_DIR / filename
                         dest.write_bytes(e.content.read())
-                        uploaded_image_url["value"] = f"/static/images/{filename}"
-                        upload_preview.set_content(
-                            f'<img src="{uploaded_image_url["value"]}?t={int(__import__("time").time())}" '
-                            f'style="max-height:120px;border-radius:8px;margin-top:8px;border:1px solid #333">'
+                        new_uploaded_url["value"] = f"/static/images/{filename}"
+                        new_upload_preview.set_content(
+                            f'<img src="{new_uploaded_url["value"]}" style="max-height:120px;border-radius:8px;margin-top:8px;border:1px solid #333">'
                         )
                         ui.notify("Bild hochgeladen.", color="positive")
 
-                    ui.upload(
-                        label="Bild wählen",
-                        on_upload=handle_image_upload,
-                        auto_upload=True,
-                        max_file_size=10_000_000,
-                    ).props('accept=".png,.jpg,.jpeg,.webp" flat bordered').classes("w-full").style(
-                        "background:#1a1a1a;border:1px solid #333;border-radius:8px"
-                    )
+                    ui.upload(label="Bild wählen", on_upload=handle_new_image, auto_upload=True, max_file_size=10_000_000,
+                    ).props('accept=".png,.jpg,.jpeg,.webp" flat bordered').classes("w-full").style("background:#1a1a1a;border:1px solid #333;border-radius:8px")
 
-                    def save_special_toggle() -> None:
-                        if not special_item_sel.value:
-                            ui.notify("Bitte einen Artikel auswählen.", color="negative")
+                    def create_special() -> None:
+                        errors = []
+                        if not sp_name_in.value or not sp_name_in.value.strip():
+                            errors.append("Name")
+                        if not sp_cat_in.value:
+                            errors.append("Kategorie")
+                        if not sp_price_in.value or float(sp_price_in.value) <= 0:
+                            errors.append("Normalpreis")
+                        if errors:
+                            ui.notify(f"Pflichtfeld(er) fehlen: {', '.join(errors)}", color="negative")
                             return
+                        disc_price = float(sp_disc_in.value) if sp_disc_in.value else None
+                        until_dt = datetime.strptime(sp_until_in.value, "%Y-%m-%d") if sp_until_in.value else None
                         try:
-                            admin.set_item_special(special_item_sel.value, True)
-                            if uploaded_image_url["value"]:
-                                admin.update_item_image(special_item_sel.value, uploaded_image_url["value"])
-                                uploaded_image_url["value"] = None
-                                upload_preview.set_content("")
-                            ui.notify("Als Special markiert!", color="positive")
+                            item = admin.create_menu_item(
+                                category_id=sp_cat_in.value,
+                                name=sp_name_in.value.strip(),
+                                description=sp_desc_in.value.strip() or None,
+                                price=float(sp_price_in.value),
+                                image_url=new_uploaded_url["value"],
+                                is_special=True,
+                                discount_price=disc_price,
+                                discount_until=until_dt,
+                                created_by_user_id=user_data["id"],
+                            )
+                            sp_name_in.set_value("")
+                            sp_price_in.set_value(None)
+                            sp_desc_in.set_value("")
+                            sp_disc_in.set_value(None)
+                            sp_until_in.set_value("")
+                            new_uploaded_url["value"] = None
+                            new_upload_preview.set_content("")
+                            ui.notify(f"Special '{item.name}' erstellt!", color="positive")
                             refresh_specials_list()
                         except ValueError as e:
                             ui.notify(str(e), color="negative")
 
-                    ui.button("Als Special markieren", on_click=save_special_toggle).classes("fw-btn fw-btn-primary").style("margin-top:16px;padding:12px 28px")
+                    ui.button("Special erstellen →", on_click=create_special).classes("fw-btn fw-btn-primary").style("margin-top:20px;padding:14px 32px;width:100%")
 
                 # ---- SECTION 2: Rabatt festlegen ----
                 ui.html('<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:#F5F0E8;letter-spacing:1px;margin:40px 0 16px">RABATT FESTLEGEN</div>')
@@ -1182,13 +1215,20 @@ class Pages:
                                         ui.notify("Special deaktiviert.", color="positive")
                                         refresh_specials_list()
 
-                                    ui.button("Als Special entfernen", on_click=deactivate).classes("fw-btn").style(
-                                        "padding:6px 16px;font-size:11px!important;background:transparent;color:#888;border:1px solid #333"
-                                    )
+                                    def delete_special(iid=sp.id, sname=sp.name) -> None:
+                                        admin.delete_menu_item(iid)
+                                        ui.notify(f"'{sname}' gelöscht.", color="positive")
+                                        refresh_specials_list()
+
+                                    with ui.row().style("gap:8px"):
+                                        ui.button("Deaktivieren", on_click=deactivate).classes("fw-btn").style(
+                                            "padding:6px 14px;font-size:11px!important;background:transparent;color:#888;border:1px solid #333"
+                                        )
+                                        ui.button("Löschen", on_click=delete_special).classes("fw-btn").style(
+                                            "padding:6px 14px;font-size:11px!important;background:transparent;color:#E63312;border:1px solid #E63312"
+                                        )
 
                 refresh_specials_list()
-
-            ui.html("</div>")
 
         # ================================================================
         # LOGOUT
