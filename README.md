@@ -138,6 +138,8 @@ employees can:
 
 ## 🏛️ Architecture
 
+<img width="1119" height="1406" alt="image" src="https://github.com/user-attachments/assets/b7a6e527-e5f6-4e4b-be4a-4e0af1508549" />
+
 ### Layers
 - **UI:** NiceGUI (browser-based interface)
 - **Application logic:** Controllers and Services
