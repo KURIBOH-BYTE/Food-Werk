@@ -338,7 +338,6 @@ FoodWerk/
 
 ```bash
 git clone https://github.com/KURIBOH-BYTE/Food-Werk.git
-cd foodwerk
 ```
 
 ### 2. Project Setup
@@ -349,12 +348,10 @@ cd foodwerk
 #### macOS / Linux
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate
 ```
 #### Windows
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
 ```
 - Install dependencies:
 ```bash
