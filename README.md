@@ -26,7 +26,7 @@ Fast food restaurants often rely on manual order taking, which leads to errors, 
 
 The application allows customers to:
 - Browse a menu with categories (Burgers, Pizza, Sides, Drinks, Desserts)
-- Customize items (remove ingredients, add extras)
+- Customize items (remove ingredients)
 - Manage a shopping cart
 - Choose between delivery and pickup
 - Pay securely with a card (test card simulation)
