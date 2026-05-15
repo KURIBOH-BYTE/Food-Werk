@@ -138,7 +138,22 @@ employees can:
 
 ## 🏛️ Architecture
 
-<img width="1119" height="1600" alt="image" src="https://github.com/user-attachments/assets/b7a6e527-e5f6-4e4b-be4a-4e0af1508549" />
+flowchart TD
+    UI["🖥️ **UI: NiceGUI Pages + Controllers**\n(pages.py, controllers.py)"]
+    SVC["⚙️ **Business Logic: Services**\n(AuthService, MenuService, OrderService,\nCartService, PaymentService, ReceiptService)"]
+    DAO["🗄️ **DAO/DB: Database Access**\n(dao.py, db.py, seed.py)"]
+    DOM["🔗 **Domain Model**\n──────────────────\nSQLModel Entities:\nUser, Category, MenuItem,\nIngredient, MenuItemIngredient,\nOrder, OrderItem, DeliveryAddress"]
+
+    UI -->|uses| SVC
+    SVC -->|read / write| DAO
+    DAO -->|persists| DOM
+    SVC -.->|works with| DOM
+    UI -.->|uses| DOM
+
+    style UI  fill:#dbeafe,stroke:#3b82f6,color:#1e3a5f
+    style SVC fill:#dcfce7,stroke:#22c55e,color:#14532d
+    style DAO fill:#fef9c3,stroke:#eab308,color:#713f12
+    style DOM fill:#ede9fe,stroke:#8b5cf6,color:#3b0764
 
 ### Layers
 - **UI:** NiceGUI (browser-based interface)
