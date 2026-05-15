@@ -334,36 +334,29 @@ FoodWerk/
 
 ## 🚀 How to Run
 
-### 1. Clone the repository
-
 ```bash
+# Clone the repository
 git clone https://github.com/KURIBOH-BYTE/Food-Werk.git
-```
 
-### 2. Project Setup
+# Navigate into the project folder
+cd Food-Werk
 
-- Python 3.13 is required
-- Create and activate a virtual environment:
-
-#### macOS / Linux
-```bash
-python3 -m venv .venv
-```
-#### Windows
-```bash
+# Create a virtual environment
 python -m venv .venv
-```
-- Install dependencies:
-```bash
+
+# Activate the virtual environment (Windows)
+.venv\Scripts\activate
+
+# Activate the virtual environment (Mac/Linux)
+source .venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Run the application
+python3 -m foodwerk
 ```
 
-### 3. Launch
-- Start the FoodWerk Website:
-
-```bash
-python3 -m foodwerk
-``` 
 - If the application does not open automatically, open the URL printed in the console (default: http://localhost:8080).
 
 ### 4. Demo Accounts
