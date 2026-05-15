@@ -159,7 +159,7 @@ employees can:
 
 ---
 # Klassendiagramm
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/db0fbf8e-4d20-44f2-b236-5d1f87b66676" />
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/6257f1c3-4bb7-45b1-882c-4dd788c48bb1" />
 
 Das Klassendiagramm zeigt die vollständige Architektur von FoodWerk aufgeteilt in vier Schichten.
 
