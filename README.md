@@ -384,10 +384,20 @@ Register a new account to use the customer features.
 5. Enter a test card and click **Pay Now**.
 6. Track your order on the confirmation page.
 
+<img width="1882" height="488" alt="Screenshot 2026-05-15 123602" src="https://github.com/user-attachments/assets/367b1764-4ca0-4193-b348-153b0fa01c3c" />
+<img width="732" height="586" alt="Screenshot 2026-05-15 121739" src="https://github.com/user-attachments/assets/a4db94d2-57ee-4432-b998-2a20bcc45072" />
+<img width="1112" height="340" alt="Screenshot 2026-05-15 122400" src="https://github.com/user-attachments/assets/aa76ccae-d045-49d3-b9ee-6ca64a87252b" />
+
+
 **Admin:**
 1. Log in with `admin@foodwerk.ch` / `admin123`.
 2. Navigate to **Admin** in the navbar.
 3. Manage orders, menu availability, and specials.
+
+<img width="1270" height="329" alt="Screenshot 2026-05-15 123743" src="https://github.com/user-attachments/assets/f643a7b7-9d86-4f06-a391-c34822a612f6" />
+<img width="1727" height="761" alt="Screenshot 2026-05-15 123844" src="https://github.com/user-attachments/assets/c497f626-f207-4ce2-944e-b775b3407307" />
+
+
 
 ---
 # Testing
