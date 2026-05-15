@@ -346,7 +346,7 @@ cd Food-Werk
 
 **Step 3 – Create a virtual environment**
 ```bash
-python -m venv .venv
+python -m venv .venv --without-pip
 ```
 
 **Step 4 – Activate the virtual environment**
