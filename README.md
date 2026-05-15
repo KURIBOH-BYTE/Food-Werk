@@ -216,15 +216,22 @@ The application uses **SQLModel** to map domain objects to a SQLite database.
 - User
 - Category
 - MenuItem
-- Ingredient / MenuItemIngredient
+- Ingredient
+- MenuItemIngredient
 - DeliveryAddress
-- Order / OrderItem
-  
+- Order
+- OrderItem
+
 ### Key Relationships
-- One Order → one DeliveryAddress (optional, bei Lieferung)
-- One User → many DeliveryAddress
-- One User → many MenuItem (created_by)
-- One MenuItem → many MenuItemIngredient
+- One **User** → many **Order**
+- One **User** → many **DeliveryAddress**
+- One **User** → many **MenuItem** *(created_by)*
+- One **Order** → one **DeliveryAddress** *(optional, only for delivery)*
+- One **Order** → many **OrderItem**
+- One **MenuItem** → many **OrderItem**
+- One **MenuItem** → many **MenuItemIngredient**
+- One **Ingredient** → many **MenuItemIngredient**
+- One **Category** → many **MenuItem**
 
 ---
 
