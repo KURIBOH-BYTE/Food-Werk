@@ -161,50 +161,50 @@ employees can:
 # Klassendiagramm
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/6257f1c3-4bb7-45b1-882c-4dd788c48bb1" />
 
-Das Klassendiagramm zeigt die vollständige Architektur von FoodWerk aufgeteilt in vier Schichten.
+The class diagram shows the complete architecture of FoodWerk divided into four layers.
 
 ## Domain Model (Entities)
 
-Die Datenbankklassen basieren auf SQLModel und werden direkt in die SQLite-Datenbank gespeichert. Folgende Entities sind vorhanden:
+The database classes are based on SQLModel and are stored directly in the SQLite database. The following entities are present:
 
-- **User** — Benutzer mit Rolle (admin, employee, customer)
-- **DeliveryAddress** — Lieferadressen eines Benutzers
-- **Category** — Menükategorien (z.B. Burgers, Pizza)
-- **Ingredient** — Zutaten
-- **MenuItem** — Menüartikel mit Preis, Verfügbarkeit und Rabatt
-- **MenuItemIngredient** — Verbindungstabelle zwischen MenuItem und Ingredient
-- **Order** — Bestellung eines Benutzers
-- **OrderItem** — Einzelne Position innerhalb einer Bestellung
+- User — User with role (admin, employee, customer)
+- DeliveryAddress — Delivery addresses of a user
+- Category — Menu categories (e.g. Burgers, Pizza)
+- Ingredient — Ingredients
+- MenuItem — Menu items with price, availability, and discount
+- MenuItemIngredient — Junction table between MenuItem and Ingredient
+- Order — A user's order
+- OrderItem — Individual line item within an order
 
 ## DAO Layer (Data Access Layer)
 
-Die DAO-Klassen (Data Access Objects) sind für den Datenbankzugriff zuständig. Alle DAOs erben von `BaseDAO` und verwenden SQLModel-Sessions.
+The DAO classes (Data Access Objects) are responsible for database access. All DAOs inherit from `BaseDAO` and use SQLModel sessions.
 
-- **UserDAO** — CRUD-Operationen für Benutzer
-- **DeliveryAddressDAO** — Verwaltung von Lieferadressen
-- **CategoryDAO** — Abfrage von Kategorien
-- **MenuItemDAO** — Verwaltung von Menüartikeln inkl. Verfügbarkeit, Specials und Rabatte
-- **OrderDAO** — Erstellen und Abfragen von Bestellungen
+- **UserDAO** — CRUD operations for users
+- **DeliveryAddressDAO** — Management of delivery addresses
+- **CategoryDAO** — Querying of categories
+- **MenuItemDAO** — Management of menu items including availability, specials, and discounts
+- **OrderDAO** — Creating and querying orders
 
 ## Service Layer (Business Logic)
 
-Die Services enthalten die Geschäftslogik. Sie nutzen die DAOs für den Datenzugriff und erben von `BaseService`.
+The services contain the business logic. They use the DAOs for data access and inherit from `BaseService`.
 
-- **AuthService** — Registrierung, Login, Passwortverwaltung, Lieferadressen
-- **MenuService** — Menüverwaltung, Specials, Rabatte
-- **OrderService** — Bestellerstellung und Statusverwaltung
-- **CartService** — In-Memory Warenkorb mit automatischem 10% Rabatt ab CHF 50
-- **CartItem** — Einzelne Position im Warenkorb
-- **PaymentService** — Stripe Checkout Integration
+- **AuthService** — Registration, login, password management, delivery addresses
+- **MenuService** — Menu management, specials, discounts
+- **OrderService** — Order creation and status management
+- **CartService** — In-memory shopping cart with automatic 10% discount from CHF 50
+- **CartItem** — Individual item in the shopping cart
+- **PaymentService** — Stripe Checkout integration
 
 ## Controller Layer (UI-Koordination)
 
-Die Controller vermitteln zwischen der UI-Schicht (NiceGUI Pages) und den Services.
+The controllers mediate between the UI layer (NiceGUI Pages) and the services.
 
-- **AuthController** — Login, Registrierung, Session-Verwaltung
-- **ShoppingController** — Menü, Warenkorb, Bestellabwicklung
-- **AdminController** — Bestellverwaltung, Menüverwaltung, Specials
-- **PaymentController** — Stripe Checkout Flow
+- **AuthController** — Login, registration, session management
+- **ShoppingController** — Menu, shopping cart, order processing
+- **AdminController** — Order management, menu management, specials
+- **PaymentController** — Stripe Checkout flow
 ## 🗄️ Database and ORM
 
 The application uses **SQLModel** to map domain objects to a SQLite database.
