@@ -296,11 +296,14 @@ Use expiry `12/26` and CVV `123` for the success cards.
 ```text
 FoodWerk/
 ├── requirements.txt
+├── .env.example
+├── .gitignore
+├── start.sh
 ├── foodwerk/
 │   ├── __main__.py
 │   ├── application.py          ← Composition Root
 │   ├── domain/
-│   │   └── models.py           ← 13 SQLModel entities
+│   │   └── models.py           ← 8 SQLModel entities
 │   ├── data_access/
 │   │   ├── dao.py              ← DAOs per entity
 │   │   ├── db.py               ← Database facade
@@ -312,22 +315,23 @@ FoodWerk/
 │   │   ├── menu_service.py
 │   │   ├── order_service.py
 │   │   ├── payment_service.py
-│   │   ├── review_service.py
-│   │   └── special_service.py
+│   │   └── receipt_service.py
 │   └── ui/
 │       ├── controllers.py      ← Auth / Shopping / Admin / Payment
 │       ├── pages.py            ← All NiceGUI routes
 │       └── components.py       ← Reusable UI components
 ├── frontend/
-│   └── static/                 ← Images, icons
+│   └── static/
+│       └── images/             ← Product images & logo
 └── tests/
     ├── conftest.py
+    ├── test_unit.py            ← CartService unit tests
+    ├── test_db.py              ← DAO database tests
+    ├── test_integration.py     ← End-to-end checkout tests
     ├── test_auth_service.py
     ├── test_cart_service.py
     ├── test_menu_service.py
-    ├── test_order_service.py
-    ├── test_review_service.py
-    └── test_special_service.py
+    └── test_order_service.py
 ```
 
 ---
