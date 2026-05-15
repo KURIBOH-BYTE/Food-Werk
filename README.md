@@ -334,6 +334,9 @@ FoodWerk/
 
 ## 🚀 How to Run
 
+## Requirements
+- Python 3.13+
+  
 **Step 1 – Clone the repository**
 ```bash
 git clone https://github.com/KURIBOH-BYTE/Food-Werk.git
