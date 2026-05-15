@@ -196,6 +196,7 @@ The services contain the business logic. They use the DAOs for data access and i
 - **CartService** — In-memory shopping cart with automatic 10% discount from CHF 50
 - **CartItem** — Individual item in the shopping cart
 - **PaymentService** — Stripe Checkout integration
+- **ReceiptService** — PDF receipt generation for completed orders
 
 ## Controller Layer (UI-Koordination)
 
@@ -288,6 +289,8 @@ Use expiry `12/26` and CVV `123` for the success cards.
 - **sqlalchemy** – database toolkit
 - **bcrypt** – password hashing
 - **pytest** – testing
+- **fpdf2** – PDF generation for receipts
+- **stripe** – payment integration
 
 ---
 
