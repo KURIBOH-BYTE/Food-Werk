@@ -339,7 +339,7 @@ FoodWerk/
 ## 🚀 How to Run
 
 ## Requirements
-- Python 3.13+
+- Python 3.9+
   
 **Step 1 – Clone the repository**
 ```bash
