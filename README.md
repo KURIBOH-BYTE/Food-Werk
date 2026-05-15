@@ -381,7 +381,7 @@ Register a new account to use the customer features.
 
 **Order food:**
 1. Go to **Menu** and browse by category.
-2. Click an item to customize (remove ingredients, add notes).
+2. Click an item to customize (remove ingredients).
 3. Go to **Cart** and review your order.
 4. Click **Checkout**, choose delivery or pickup, fill in details.
 5. Enter a test card and click **Pay Now**.
