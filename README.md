@@ -98,7 +98,7 @@ employees can:
 **As an admin or employee, I want to manage the availability of items to keep the menu up to date.**
 
 - **Inputs:** availability status (in stock/out of stock).
-- **Outputs:** active special visible on the menu and specials page
+- **Outputs:** updated item availability reflected in the menu
 
 ---
 
@@ -107,6 +107,14 @@ employees can:
 
 - **Inputs:** menu item, special price, start/end date, description
 - **Outputs:** active special visible on the menu and specials page
+
+---
+
+### 9. Download Receipt (Customer)
+**As a customer, I want to download a PDF receipt for my completed order.**
+
+- **Inputs:** order ID
+- **Outputs:** PDF receipt with order details, items, total, and applied discount
 
 ---
 
@@ -119,6 +127,7 @@ employees can:
 - Add to Cart / Customize (Customer)
 - Checkout & Pay (Customer)
 - Track Order (Customer)
+- Download PDF Receipt (Customer)
 - Register / Login (Customer)
 - Manage Menu (Admin/Employee)
 - Manage Orders (Admin/Employee)
@@ -401,6 +410,7 @@ Register a new account to use the customer features.
 4. Click **Checkout**, choose delivery or pickup, fill in details.
 5. Enter a test card and click **Pay Now**.
 6. Track your order on the confirmation page.
+7. Go to **My Account** to view all past orders and download a PDF receipt for any order.
 
 <img width="1882" height="488" alt="Screenshot 2026-05-15 123602" src="https://github.com/user-attachments/assets/367b1764-4ca0-4193-b348-153b0fa01c3c" />
 <img width="732" height="586" alt="Screenshot 2026-05-15 121739" src="https://github.com/user-attachments/assets/a4db94d2-57ee-4432-b998-2a20bcc45072" />
@@ -471,6 +481,55 @@ Testet den vollständigen Checkout-Ablauf mit `MenuService`, `CartService` und `
 | `test_checkout_single_item_creates_order` | Bestellung mit einem Artikel wird erstellt |
 | `test_checkout_multiple_items_applies_discount` | Rabatt wird bei Subtotal > CHF 50 angewendet |
 | `test_checkout_exactly_50_no_discount` | Kein Rabatt bei exakt CHF 50.00 |
+
+### `test_auth_service.py` — AuthService Tests
+
+Testet Registrierung, Login und Validierungslogik.
+
+| Test | Beschreibung |
+|---|---|
+| `test_register_creates_user` | Neuer Benutzer wird korrekt gespeichert |
+| `test_login_success` | Login mit korrekten Daten liefert User |
+| `test_login_wrong_password` | Login mit falschem Passwort schlägt fehl |
+| `test_password_too_short` | Passwort unter 8 Zeichen wird abgelehnt |
+| `test_password_no_special_char` | Passwort ohne Sonderzeichen wird abgelehnt |
+| `test_invalid_email` | Ungültige E-Mail wird abgelehnt |
+| `test_invalid_phone` | Ungültige Telefonnummer wird abgelehnt |
+| `test_duplicate_email` | Doppelte E-Mail-Registrierung wird abgelehnt |
+
+### `test_cart_service.py` — CartService Tests
+
+Testet Warenkorb-Operationen und Serialisierung.
+
+| Test | Beschreibung |
+|---|---|
+| `test_add_item` | Artikel wird dem Warenkorb hinzugefügt |
+| `test_remove_item` | Artikel wird aus dem Warenkorb entfernt |
+| `test_update_quantity` | Menge eines Artikels wird aktualisiert |
+| `test_total` | Total wird korrekt berechnet |
+| `test_serialization_roundtrip` | Warenkorb wird korrekt serialisiert und wiederhergestellt |
+
+### `test_menu_service.py` — MenuService Tests
+
+Testet Menü-Abfragen und Verfügbarkeitsmanagement.
+
+| Test | Beschreibung |
+|---|---|
+| `test_get_categories` | Kategorien werden korrekt geladen |
+| `test_get_menu_items_available_only` | Nur verfügbare Artikel werden zurückgegeben |
+| `test_get_menu_items_by_category` | Filterung nach Kategorie funktioniert |
+| `test_set_availability` | Verfügbarkeit eines Artikels wird aktualisiert |
+| `test_get_specials_empty` | Spezialangebote-Liste wird korrekt zurückgegeben |
+
+### `test_order_service.py` — OrderService Tests
+
+Testet Bestellerstellung und Statusverwaltung.
+
+| Test | Beschreibung |
+|---|---|
+| `test_create_pickup_order` | Abholbestellung wird korrekt erstellt |
+| `test_create_delivery_order` | Lieferbestellung mit Adresse wird erstellt |
+| `test_update_order_status` | Bestellstatus wird korrekt aktualisiert |
 
 ## Technologie
 
