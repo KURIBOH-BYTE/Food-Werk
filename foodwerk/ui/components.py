@@ -172,13 +172,14 @@ def navbar(cart: CartService | None = None) -> None:
     user = app.storage.user.get("user")
     cart_count = cart.item_count
 
-    cart_label = f'Warenkorb{"<span class=fw-cart-badge>" + str(cart_count) + "</span>" if cart_count else ""}'
+    badge_style = "display:inline" if cart_count else "display:none"
+    cart_label = f'Warenkorb<span id="fw-cart-badge" class="fw-cart-badge" style="{badge_style}">{cart_count}</span>'
 
     extra_links = ""
     if user:
         if user.get("role") in ("admin", "employee"):
             extra_links += '<li><a href="/admin">Admin</a></li>'
-        extra_links += f'<li><a href="/profile">{user["first_name"]}</a></li>'
+        extra_links += '<li><a href="/profile">Konto</a></li>'
         extra_links += '<li><a href="/logout">Logout</a></li>'
     else:
         extra_links += '<li><a href="/login">Login</a></li>'
@@ -281,7 +282,7 @@ def _decrease(index: int, current_qty: int, on_update_qty, on_remove) -> None:
         on_update_qty(index, current_qty - 1)
 
 
-def order_card(order: dict) -> None:
+def order_card(order: dict, receipt_id: int | None = None) -> None:
     """Dark styled order summary card."""
     status = order.get("status", "pending")
     sc = {"pending": "#F5C842", "preparing": "#378ADD", "ready": "#639922", "delivered": "#888", "collected": "#888"}.get(status, "#888")
@@ -296,4 +297,13 @@ def order_card(order: dict) -> None:
             for it in order["items"]:
                 ui.label(f"{it['quantity']}× {it['name']} — {it['total']:.2f} CHF").style("font-size:13px;color:#aaa")
         ui.html('<div style="border-top:1px solid rgba(255,255,255,0.07);margin:12px 0"></div>')
-        ui.label(f"Total: {order['total_price']:.2f} CHF").style("font-weight:700;color:#E63312;font-size:17px")
+        with ui.row().style("width:100%;align-items:center;justify-content:space-between"):
+            ui.label(f"Total: {order['total_price']:.2f} CHF").style("font-weight:700;color:#E63312;font-size:17px")
+            if receipt_id is not None:
+                ui.html(
+                    f'<a href="/receipt/{receipt_id}" target="_blank" download="quittung_{receipt_id}.pdf" '
+                    f'style="display:inline-flex;align-items:center;gap:5px;background:transparent;'
+                    f'color:#E63312;border:1px solid #E63312;font-family:\'Bebas Neue\',sans-serif;'
+                    f'font-size:12px;letter-spacing:2px;padding:6px 14px;text-decoration:none;'
+                    f'text-transform:uppercase">&#x2193; Quittung</a>'
+                )

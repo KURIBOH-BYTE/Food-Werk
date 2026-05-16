@@ -10,6 +10,7 @@ import re
 from datetime import datetime
 
 from nicegui import ui, app
+from fastapi.responses import Response
 
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 _PHONE_RE = re.compile(r"^\+?[\d\s\-\(\)]{7,20}$")
@@ -17,6 +18,8 @@ _SPECIAL_RE = re.compile(r"[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?`~]")
 _NAME_RE = re.compile(r"^[A-Za-zÀ-öø-ÿ\s\-']+$")
 
 from .controllers import AdminController, AuthController, PaymentController, ShoppingController
+from ..services.receipt_service import ReceiptService
+from ..services.order_service import OrderService
 from .components import (
     STATUS_LABELS, cart_item_row, menu_card, navbar, order_card,
 )
@@ -79,11 +82,15 @@ class Pages:
         shopping: ShoppingController,
         admin: AdminController,
         payment: PaymentController,
+        receipt: ReceiptService | None = None,
+        order_service: OrderService | None = None,
     ) -> None:
         self._auth = auth
         self._shopping = shopping
         self._admin = admin
         self._payment = payment
+        self._receipt = receipt
+        self._order_service = order_service
 
     def register(self) -> None:
         """Wire all routes. Called once at startup from application.py."""
@@ -92,6 +99,25 @@ class Pages:
         shopping = self._shopping
         admin = self._admin
         payment = self._payment
+        receipt_svc = self._receipt
+        order_svc = self._order_service
+
+        # ================================================================
+        # RECEIPT DOWNLOAD (FastAPI endpoint — returns PDF bytes)
+        # ================================================================
+        @app.get("/receipt/{order_id}")
+        def download_receipt(order_id: int) -> Response:
+            if not order_svc or not receipt_svc:
+                return Response(content="Receipt service unavailable", status_code=503)
+            order = order_svc.get_by_id(order_id)
+            if not order:
+                return Response(content="Order not found", status_code=404)
+            pdf_bytes = receipt_svc.generate_pdf(order)
+            return Response(
+                content=pdf_bytes,
+                media_type="application/pdf",
+                headers={"Content-Disposition": f'attachment; filename="quittung_{order_id}.pdf"'},
+            )
 
         # ================================================================
         # HOME
@@ -386,6 +412,11 @@ class Pages:
                                 unit_price=eff_price,
                                 notes=notes,
                             )
+                            count = shopping.get_cart().item_count
+                            ui.run_javascript(f'''
+                                var b = document.getElementById("fw-cart-badge");
+                                if (b) {{ b.textContent = "{count}"; b.style.display = "inline"; }}
+                            ''')
                             dialog.close()
                             ui.notify(f"{captured_item['name']} hinzugefügt!", color="positive")
 
@@ -600,11 +631,35 @@ class Pages:
 
                             with new_form:
                                 label_in = ui.input("Bezeichnung (optional, z.B. Zuhause)").classes("w-full").style("margin-bottom:8px;font-size:16px").props("outlined dense=false")
-                                street_in = ui.input("Strasse").classes("w-full").style("font-size:16px").props("outlined dense=false")
-                                house_nr_in = ui.input("Hausnummer").classes("w-full").style("margin-top:8px;font-size:16px").props("outlined dense=false")
+                                street_in = ui.input(
+                                    "Strasse *",
+                                    validation={
+                                        "Pflichtfeld": lambda v: bool(v.strip()),
+                                        "Strasse muss Buchstaben enthalten": lambda v: bool(re.search(r'[a-zA-ZÀ-öø-ÿ]', v.strip())) if v.strip() else True,
+                                    },
+                                ).classes("w-full").style("font-size:16px").props("outlined dense=false")
+                                house_nr_in = ui.input(
+                                    "Hausnummer *",
+                                    validation={
+                                        "Pflichtfeld": lambda v: bool(v.strip()),
+                                        "Muss eine Zahl sein (z.B. 12 oder 12a)": lambda v: bool(re.match(r'^\d+[a-zA-Z]?$', v.strip())) if v.strip() else True,
+                                    },
+                                ).classes("w-full").style("margin-top:8px;font-size:16px").props("outlined dense=false")
                                 floor_in = ui.input("Stockwerk (optional)").classes("w-full").style("margin-top:8px;font-size:16px").props("outlined dense=false")
-                                city_in = ui.input("Stadt").classes("w-full").style("margin-top:8px;font-size:16px").props("outlined dense=false")
-                                postal_in = ui.input("Postleitzahl").classes("w-full").style("margin-top:8px;font-size:16px").props("outlined dense=false")
+                                city_in = ui.input(
+                                    "Stadt *",
+                                    validation={
+                                        "Pflichtfeld": lambda v: bool(v.strip()),
+                                        "Stadt darf nur Buchstaben enthalten": lambda v: bool(re.match(r'^[a-zA-ZÀ-öø-ÿ\s\-]+$', v.strip())) if v.strip() else True,
+                                    },
+                                ).classes("w-full").style("margin-top:8px;font-size:16px").props("outlined dense=false")
+                                postal_in = ui.input(
+                                    "Postleitzahl *",
+                                    validation={
+                                        "Pflichtfeld": lambda v: bool(v.strip()),
+                                        "Muss 4-stellig sein (z.B. 8001)": lambda v: bool(re.match(r'^\d{4}$', v.strip())) if v.strip() else True,
+                                    },
+                                ).classes("w-full").style("margin-top:8px;font-size:16px").props("outlined dense=false")
 
                     else:
                         with pickup_box:
@@ -639,6 +694,18 @@ class Pages:
                         if not postal_in or not postal_in.value.strip(): missing.append("Postleitzahl")
                         if missing:
                             ui.notify(f"Pflichtfeld(er) fehlen: {', '.join(missing)}", color="negative")
+                            return
+                        if not re.search(r'[a-zA-ZÀ-öø-ÿ]', street_in.value.strip()):
+                            ui.notify("Strasse muss Buchstaben enthalten.", color="negative")
+                            return
+                        if not re.match(r'^\d+[a-zA-Z]?$', house_nr_in.value.strip()):
+                            ui.notify("Hausnummer muss eine Zahl sein (z.B. 12 oder 12a).", color="negative")
+                            return
+                        if not re.match(r'^[a-zA-ZÀ-öø-ÿ\s\-]+$', city_in.value.strip()):
+                            ui.notify("Stadt darf nur Buchstaben enthalten.", color="negative")
+                            return
+                        if not re.match(r'^\d{4}$', postal_in.value.strip()):
+                            ui.notify("Postleitzahl muss 4-stellig sein (z.B. 8001).", color="negative")
                             return
                         try:
                             new_addr = auth.add_delivery_address(
@@ -739,8 +806,7 @@ class Pages:
                 </div>
             """)
             with ui.row().style("justify-content:center;gap:16px"):
-                if order_id:
-                    ui.button("Bestellung verfolgen", on_click=lambda: ui.navigate.to(f"/order/{order_id}")).classes("fw-btn fw-btn-primary").style("padding:14px 28px")
+                ui.button("Bestellung verfolgen", on_click=lambda: ui.navigate.to("/profile")).classes("fw-btn fw-btn-primary").style("padding:14px 28px")
                 ui.button("Zurück zum Menü", on_click=lambda: ui.navigate.to("/menu")).classes("fw-btn fw-btn-outline").style("padding:14px 28px")
             ui.html("</div></div>")
 
@@ -834,6 +900,11 @@ class Pages:
                             def add_sp(i=item):
                                 p = _active_price(i["price"], i.get("discount_price"), i.get("discount_until"))
                                 shopping.add_to_cart(i["id"], i["name"], p)
+                                count = shopping.get_cart().item_count
+                                ui.run_javascript(f'''
+                                    var b = document.getElementById("fw-cart-badge");
+                                    if (b) {{ b.textContent = "{count}"; b.style.display = "inline"; }}
+                                ''')
                                 dialog.close()
                                 ui.notify(f"{i['name']} hinzugefügt!", color="positive")
                             ui.button("In den Warenkorb", on_click=add_sp).classes("fw-btn fw-btn-primary").style("padding:12px 24px")
@@ -885,7 +956,7 @@ class Pages:
                             "created_at": o.created_at.strftime("%d.%m.%Y %H:%M"),
                             "total_price": o.total_price,
                             "items": items_data,
-                        })
+                        }, receipt_id=o.id)
 
         # ================================================================
         # ADMIN — DASHBOARD
@@ -1047,6 +1118,18 @@ class Pages:
                 ui.navigate.to("/")
                 return
 
+            ui.add_head_html("""<style>
+            .q-date { background:#1a1a1a !important; color:#F5F0E8 !important; border:1px solid rgba(255,255,255,0.1); }
+            .q-date__header { background:#E63312 !important; }
+            .q-date__header-title, .q-date__header-subtitle { color:#fff !important; }
+            .q-date__calendar-item .q-btn { color:#F5F0E8 !important; }
+            .q-date__calendar-item .q-btn.bg-primary { background:#E63312 !important; color:#fff !important; }
+            .q-date__navigation .q-btn { color:#F5F0E8 !important; }
+            .q-date__years-item .q-btn, .q-date__months-item .q-btn { color:#F5F0E8 !important; }
+            .q-date__calendar-weekdays > div { color:#888 !important; }
+            .q-date__today .q-btn { border:1px solid #E63312 !important; }
+            </style>""")
+
             with ui.element("div").style("padding-top:64px;background:#111111;width:100%"):
                 ui.html('<div style="background:#1a1a1a;padding:20px 60px;border-bottom:1px solid rgba(255,255,255,0.07)"><div style="font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#E63312;margin-bottom:6px">Verwaltung</div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:40px;line-height:1;color:#F5F0E8">SPECIALS & RABATTE</div></div>')
             all_items = admin.get_all_menu_items()
@@ -1075,7 +1158,7 @@ class Pages:
 
                     with ui.input("Rabatt gültig bis (optional)").classes("w-full").style("margin-top:12px;font-size:16px").props("outlined dense=false") as sp_until_in:
                         with ui.menu().props("no-parent-event") as sp_menu:
-                            with ui.date().bind_value(sp_until_in):
+                            with ui.date().props(':options="(d) => d >= new Date().toISOString().slice(0,10).replaceAll(\'-\',\'\/\')"').bind_value(sp_until_in):
                                 pass
                         with sp_until_in.add_slot("append"):
                             ui.icon("edit_calendar").on("click", sp_menu.open).classes("cursor-pointer").style("color:#E63312")
@@ -1149,7 +1232,7 @@ class Pages:
 
                     with ui.input("Rabatt gültig bis (leer = dauerhaft)").classes("w-full").style("margin-top:16px") as disc_until_in:
                         with ui.menu().props("no-parent-event") as disc_menu:
-                            with ui.date().bind_value(disc_until_in):
+                            with ui.date().props(':options="(d) => d >= new Date().toISOString().slice(0,10).replaceAll(\'-\',\'\/\')"').bind_value(disc_until_in):
                                 pass
                         with disc_until_in.add_slot("append"):
                             ui.icon("edit_calendar").on("click", disc_menu.open).classes("cursor-pointer").style("color:#E63312")
@@ -1161,27 +1244,63 @@ class Pages:
                         if not disc_price_in.value:
                             ui.notify("Bitte einen Rabattpreis eingeben.", color="negative")
                             return
+                        if disc_until_in.value:
+                            try:
+                                until_dt = datetime.strptime(disc_until_in.value, "%Y-%m-%d")
+                                from datetime import date as _date
+                                if until_dt.date() < _date.today():
+                                    ui.notify("Enddatum darf nicht in der Vergangenheit liegen.", color="negative")
+                                    return
+                            except ValueError:
+                                until_dt = None
+                        else:
+                            until_dt = None
                         try:
-                            until_dt = datetime.strptime(disc_until_in.value, "%Y-%m-%d") if disc_until_in.value else None
                             admin.set_item_discount(disc_item_sel.value, float(disc_price_in.value), until_dt)
+                            disc_item_sel.set_value(None)
+                            disc_price_in.set_value(None)
+                            disc_until_in.set_value("")
                             ui.notify("Rabatt gesetzt!", color="positive")
-                            refresh_specials_list()
+                            refresh_discounts_list()
                         except ValueError as e:
                             ui.notify(str(e), color="negative")
 
-                    def remove_discount() -> None:
-                        if not disc_item_sel.value:
-                            ui.notify("Bitte einen Artikel auswählen.", color="negative")
+                    ui.button("Rabatt setzen", on_click=save_discount).classes("fw-btn fw-btn-primary").style("margin-top:20px;padding:12px 28px")
+
+                # ---- SECTION 3: Aktive Rabatte ----
+                ui.html('<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:#F5F0E8;letter-spacing:1px;margin:40px 0 16px">AKTIVE RABATTE</div>')
+                active_discounts_container = ui.column().classes("w-full")
+
+                def refresh_discounts_list() -> None:
+                    active_discounts_container.clear()
+                    items_with_discount = [i for i in admin.get_all_menu_items() if i.discount_price is not None]
+                    with active_discounts_container:
+                        if not items_with_discount:
+                            ui.label("Keine aktiven Rabatte.").style("color:#888")
                             return
-                        admin.set_item_discount(disc_item_sel.value, None, None)
-                        ui.notify("Rabatt entfernt.", color="positive")
-                        refresh_specials_list()
+                        for it in items_with_discount:
+                            eff = _active_price(it.price, it.discount_price, it.discount_until)
+                            with ui.element("div").classes("fw-admin-card").style("padding:16px 20px"):
+                                with ui.row().style("align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px"):
+                                    ui.label(it.name).style("font-weight:700;color:#F5F0E8;font-size:16px")
+                                    with ui.column().style("gap:2px"):
+                                        ui.label(f"{eff:.2f} CHF").style("color:#E63312;font-weight:700")
+                                        ui.label(f"Normalpreis: {it.price:.2f} CHF").style("font-size:11px;color:#555;text-decoration:line-through")
+                                        until_str = it.discount_until.strftime("%d.%m.%Y") if it.discount_until else "dauerhaft"
+                                        ui.label(f"Rabatt bis: {until_str}").style("font-size:11px;color:#888")
 
-                    with ui.row().style("gap:12px;margin-top:20px"):
-                        ui.button("Rabatt setzen", on_click=save_discount).classes("fw-btn fw-btn-primary").style("padding:12px 28px")
-                        ui.button("Rabatt entfernen", on_click=remove_discount).classes("fw-btn fw-btn-outline").style("padding:12px 28px")
+                                    def remove_disc(iid=it.id, iname=it.name) -> None:
+                                        admin.set_item_discount(iid, None, None)
+                                        ui.notify(f"Rabatt '{iname}' entfernt.", color="positive")
+                                        refresh_discounts_list()
 
-                # ---- SECTION 3: Aktive Specials ----
+                                    ui.button("Löschen", on_click=remove_disc).classes("fw-btn").style(
+                                        "padding:6px 14px;font-size:11px!important;background:transparent;color:#E63312;border:1px solid #E63312"
+                                    )
+
+                refresh_discounts_list()
+
+                # ---- SECTION 4: Aktive Specials ----
                 ui.html('<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:#F5F0E8;letter-spacing:1px;margin:40px 0 16px">AKTIVE SPECIALS</div>')
                 active_specials_container = ui.column().classes("w-full")
 
@@ -1210,23 +1329,14 @@ class Pages:
                                             ui.label(f"{sp.price:.2f} CHF").style("color:#E63312;font-weight:700")
                                     ui.html('<span style="background:#F5C842;color:#111;font-size:10px;font-weight:700;padding:3px 10px;letter-spacing:1px">SPECIAL</span>')
 
-                                    def deactivate(iid=sp.id) -> None:
-                                        admin.set_item_special(iid, False)
-                                        ui.notify("Special deaktiviert.", color="positive")
-                                        refresh_specials_list()
-
                                     def delete_special(iid=sp.id, sname=sp.name) -> None:
                                         admin.delete_menu_item(iid)
                                         ui.notify(f"'{sname}' gelöscht.", color="positive")
                                         refresh_specials_list()
 
-                                    with ui.row().style("gap:8px"):
-                                        ui.button("Deaktivieren", on_click=deactivate).classes("fw-btn").style(
-                                            "padding:6px 14px;font-size:11px!important;background:transparent;color:#888;border:1px solid #333"
-                                        )
-                                        ui.button("Löschen", on_click=delete_special).classes("fw-btn").style(
-                                            "padding:6px 14px;font-size:11px!important;background:transparent;color:#E63312;border:1px solid #E63312"
-                                        )
+                                    ui.button("Löschen", on_click=delete_special).classes("fw-btn").style(
+                                        "padding:6px 14px;font-size:11px!important;background:transparent;color:#E63312;border:1px solid #E63312"
+                                    )
 
                 refresh_specials_list()
 

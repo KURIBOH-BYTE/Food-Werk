@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, date
 from typing import Optional
 
 from .base_service import BaseService
@@ -41,6 +42,13 @@ class OrderService(BaseService):
             raise ValueError("Order type must be 'delivery' or 'pickup'.")
         if order_type == "delivery" and not delivery_address_id:
             raise ValueError("Für Lieferungen muss eine Lieferadresse angegeben werden.")
+
+        if isinstance(pickup_time, str) and pickup_time.strip():
+            try:
+                t = datetime.strptime(pickup_time.strip(), "%H:%M").time()
+                pickup_time = datetime.combine(date.today(), t)
+            except ValueError:
+                pickup_time = None
 
         order = Order(
             user_id=user_id,

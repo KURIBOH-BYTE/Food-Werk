@@ -20,6 +20,7 @@ from .services.cart_service import CartService
 from .services.menu_service import MenuService
 from .services.order_service import OrderService
 from .services.payment_service import PaymentService
+from .services.receipt_service import ReceiptService
 from .ui.controllers import AdminController, AuthController, PaymentController, ShoppingController
 from .ui.pages import Pages
 
@@ -51,6 +52,7 @@ class FoodWerkApplication:
         )
         order_service = OrderService(order_dao=order_dao)
         payment_service = PaymentService()
+        receipt_service = ReceiptService()
 
         # --- Controllers ---
         auth_ctrl = AuthController(auth_service=auth_service)
@@ -67,6 +69,8 @@ class FoodWerkApplication:
             shopping=shopping_ctrl,
             admin=admin_ctrl,
             payment=payment_ctrl,
+            receipt=receipt_service,
+            order_service=order_service,
         )
 
     def run(self, host: str = "0.0.0.0", port: int = 8080, reload: bool = False) -> None:
