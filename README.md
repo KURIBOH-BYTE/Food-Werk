@@ -26,7 +26,7 @@ Fast food restaurants often rely on manual order taking, which leads to errors, 
 
 The application allows customers to:
 - Browse a menu with categories (Burgers, Pizza, Sides, Drinks, Desserts)
-- Customize items (remove ingredients, add extras)
+- Customize items (remove ingredients)
 - Manage a shopping cart
 - Choose between delivery and pickup
 - Pay securely with a card (test card simulation)
@@ -138,6 +138,8 @@ employees can:
 
 ## 🏛️ Architecture
 
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/2a8513e4-4edb-4571-baa9-075a559ceb30" />
+
 ### Layers
 - **UI:** NiceGUI (browser-based interface)
 - **Application logic:** Controllers and Services
@@ -156,7 +158,55 @@ employees can:
 - **Composition Root:** `FoodWerkApplication` wires all dependencies (DAOs, Services, Controllers, Pages) in one place.
 
 ---
+# Klassendiagramm
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/49b6e5f0-63eb-47a5-98cc-57759fb0f546" />
 
+
+The class diagram shows the complete architecture of FoodWerk divided into four layers.
+
+## Domain Model (Entities)
+
+The database classes are based on SQLModel and are stored directly in the SQLite database. The following entities are present:
+
+- User — User with role (admin, employee, customer)
+- DeliveryAddress — Delivery addresses of a user
+- Category — Menu categories (e.g. Burgers, Pizza)
+- Ingredient — Ingredients
+- MenuItem — Menu items with price, availability, and discount
+- MenuItemIngredient — Junction table between MenuItem and Ingredient
+- Order — A user's order
+- OrderItem — Individual line item within an order
+
+## DAO Layer (Data Access Layer)
+
+The DAO classes (Data Access Objects) are responsible for database access. All DAOs inherit from `BaseDAO` and use SQLModel sessions.
+
+- **UserDAO** — CRUD operations for users
+- **DeliveryAddressDAO** — Management of delivery addresses
+- **CategoryDAO** — Querying of categories
+- **MenuItemDAO** — Management of menu items including availability, specials, and discounts
+- **OrderDAO** — Creating and querying orders
+
+## Service Layer (Business Logic)
+
+The services contain the business logic. They use the DAOs for data access and inherit from `BaseService`.
+
+- **AuthService** — Registration, login, password management, delivery addresses
+- **MenuService** — Menu management, specials, discounts
+- **OrderService** — Order creation and status management
+- **CartService** — In-memory shopping cart with automatic 10% discount from CHF 50
+- **CartItem** — Individual item in the shopping cart
+- **PaymentService** — Stripe Checkout integration
+- **ReceiptService** — PDF receipt generation for completed orders
+
+## Controller Layer (UI-Koordination)
+
+The controllers mediate between the UI layer (NiceGUI Pages) and the services.
+
+- **AuthController** — Login, registration, session management
+- **ShoppingController** — Menu, shopping cart, order processing
+- **AdminController** — Order management, menu management, specials
+- **PaymentController** — Stripe Checkout flow
 ## 🗄️ Database and ORM
 
 The application uses **SQLModel** to map domain objects to a SQLite database.
@@ -167,15 +217,22 @@ The application uses **SQLModel** to map domain objects to a SQLite database.
 - User
 - Category
 - MenuItem
-- Ingredient / MenuItemIngredient
+- Ingredient
+- MenuItemIngredient
 - DeliveryAddress
-- Order / OrderItem
-  
+- Order
+- OrderItem
+
 ### Key Relationships
-- One Order → one DeliveryAddress (optional, bei Lieferung)
-- One User → many DeliveryAddress
-- One User → many MenuItem (created_by)
-- One MenuItem → many MenuItemIngredient
+- One **User** → many **Order**
+- One **User** → many **DeliveryAddress**
+- One **User** → many **MenuItem** *(created_by)*
+- One **Order** → one **DeliveryAddress** *(optional, only for delivery)*
+- One **Order** → many **OrderItem**
+- One **MenuItem** → many **OrderItem**
+- One **MenuItem** → many **MenuItemIngredient**
+- One **Ingredient** → many **MenuItemIngredient**
+- One **Category** → many **MenuItem**
 
 ---
 
@@ -240,6 +297,8 @@ Use expiry `12/26` and CVV `123` for the success cards.
 - **sqlalchemy** – database toolkit
 - **bcrypt** – password hashing
 - **pytest** – testing
+- **fpdf2** – PDF generation for receipts
+- **stripe** – payment integration
 
 ---
 
@@ -248,11 +307,14 @@ Use expiry `12/26` and CVV `123` for the success cards.
 ```text
 FoodWerk/
 ├── requirements.txt
+├── .env.example
+├── .gitignore
+├── start.sh
 ├── foodwerk/
 │   ├── __main__.py
 │   ├── application.py          ← Composition Root
 │   ├── domain/
-│   │   └── models.py           ← 13 SQLModel entities
+│   │   └── models.py           ← 8 SQLModel entities
 │   ├── data_access/
 │   │   ├── dao.py              ← DAOs per entity
 │   │   ├── db.py               ← Database facade
@@ -264,61 +326,61 @@ FoodWerk/
 │   │   ├── menu_service.py
 │   │   ├── order_service.py
 │   │   ├── payment_service.py
-│   │   ├── review_service.py
-│   │   └── special_service.py
+│   │   └── receipt_service.py
 │   └── ui/
 │       ├── controllers.py      ← Auth / Shopping / Admin / Payment
 │       ├── pages.py            ← All NiceGUI routes
 │       └── components.py       ← Reusable UI components
 ├── frontend/
-│   └── static/                 ← Images, icons
+│   └── static/
+│       └── images/             ← Product images & logo
 └── tests/
     ├── conftest.py
+    ├── test_unit.py            ← CartService unit tests
+    ├── test_db.py              ← DAO database tests
+    ├── test_integration.py     ← End-to-end checkout tests
     ├── test_auth_service.py
     ├── test_cart_service.py
     ├── test_menu_service.py
-    ├── test_order_service.py
-    ├── test_review_service.py
-    └── test_special_service.py
+    └── test_order_service.py
 ```
 
 ---
 
 ## 🚀 How to Run
 
-### 1. Clone the repository
-
+## Requirements
+- Python 3.9+
+  
+**Step 1 – Clone the repository**
 ```bash
 git clone https://github.com/KURIBOH-BYTE/Food-Werk.git
-cd foodwerk
 ```
 
-### 2. Project Setup
-
-- Python 3.13 is required
-- Create and activate a virtual environment:
-
-#### macOS / Linux
+**Step 2 – Navigate into the project folder**
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+cd Food-Werk
 ```
-#### Windows
+
+**Step 3 – Create a virtual environment**
 ```bash
-python -m venv .venv
+python -m venv .venv --without-pip
+```
+
+**Step 4 – Activate the virtual environment**
+```bash
 .venv\Scripts\activate
 ```
-- Install dependencies:
+
+**Step 5 – Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Launch
-- Start the FoodWerk Website:
-
+**Step 6 – Run the application**
 ```bash
 python3 -m foodwerk
-``` 
+```
 - If the application does not open automatically, open the URL printed in the console (default: http://localhost:8080).
 
 ### 4. Demo Accounts
@@ -334,16 +396,26 @@ Register a new account to use the customer features.
 
 **Order food:**
 1. Go to **Menu** and browse by category.
-2. Click an item to customize (remove ingredients, add notes).
+2. Click an item to customize (remove ingredients).
 3. Go to **Cart** and review your order.
 4. Click **Checkout**, choose delivery or pickup, fill in details.
 5. Enter a test card and click **Pay Now**.
 6. Track your order on the confirmation page.
 
+<img width="1882" height="488" alt="Screenshot 2026-05-15 123602" src="https://github.com/user-attachments/assets/367b1764-4ca0-4193-b348-153b0fa01c3c" />
+<img width="732" height="586" alt="Screenshot 2026-05-15 121739" src="https://github.com/user-attachments/assets/a4db94d2-57ee-4432-b998-2a20bcc45072" />
+<img width="1112" height="340" alt="Screenshot 2026-05-15 122400" src="https://github.com/user-attachments/assets/aa76ccae-d045-49d3-b9ee-6ca64a87252b" />
+
+
 **Admin:**
 1. Log in with `admin@foodwerk.ch` / `admin123`.
 2. Navigate to **Admin** in the navbar.
 3. Manage orders, menu availability, and specials.
+
+<img width="1270" height="329" alt="Screenshot 2026-05-15 123743" src="https://github.com/user-attachments/assets/f643a7b7-9d86-4f06-a391-c34822a612f6" />
+<img width="1727" height="761" alt="Screenshot 2026-05-15 123844" src="https://github.com/user-attachments/assets/c497f626-f207-4ce2-944e-b775b3407307" />
+
+
 
 ---
 # Testing
