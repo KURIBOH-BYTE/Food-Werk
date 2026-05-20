@@ -102,15 +102,8 @@ class CartService:
         return round(sum(item.total for item in self.items), 2)
 
     @property
-    def discount(self) -> float:
-        """10% discount when subtotal exceeds CHF 50."""
-        if self.subtotal > 50.0:
-            return round(self.subtotal * 0.10, 2)
-        return 0.0
-
-    @property
     def total(self) -> float:
-        return round(self.subtotal - self.discount, 2)
+        return self.subtotal
 
     @property
     def item_count(self) -> int:

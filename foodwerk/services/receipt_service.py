@@ -98,18 +98,6 @@ class ReceiptService:
         pdf.ln(4)
 
         # Total
-        subtotal = sum(oi.unit_price * oi.quantity for oi in order.order_items)
-        discount = round(subtotal * 0.10, 2) if subtotal > 50 else 0.0
-
-        if discount > 0:
-            pdf.set_font("Helvetica", "", 11)
-            pdf.set_text_color(60, 60, 60)
-            pdf.cell(130, 7, "Zwischentotal", border=0)
-            pdf.cell(40, 7, f"CHF {subtotal:.2f}", align="R", ln=True)
-            pdf.set_text_color(39, 128, 61)
-            pdf.cell(130, 7, "Rabatt (10%)", border=0)
-            pdf.cell(40, 7, f"- CHF {discount:.2f}", align="R", ln=True)
-
         pdf.set_font("Helvetica", "B", 13)
         pdf.set_text_color(230, 51, 18)
         pdf.cell(130, 9, "TOTAL", border=0)
