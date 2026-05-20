@@ -34,7 +34,8 @@ def test_checkout_single_item_creates_order(seeded_engine):
     assert len(loaded.order_items) == 1
 
 
-def test_checkout_multiple_items_applies_discount(seeded_engine):
+def test_checkout_multiple_items_total_equals_subtotal(seeded_engine):
+    """Total is always the sum of item prices — no discount applied."""
     menu_service, order_service = _make_services(seeded_engine)
     user_id = _get_user_id(seeded_engine)
 
@@ -45,36 +46,31 @@ def test_checkout_multiple_items_applies_discount(seeded_engine):
     cart = CartService()
     cart.add_item(burger.id, burger.name, burger.price, quantity=3)  # 3 x 12.90 = 38.70
     cart.add_item(cheese.id, cheese.name, cheese.price, quantity=1)  # 1 x 14.50 = 14.50
-    # subtotal = 53.20 > 50 → 10% discount
+    # subtotal = 53.20
 
-    assert cart.subtotal == round(3 * 12.90 + 14.50, 2)
-    assert cart.discount > 0
-    expected_total = cart.total  # capture before create_order clears the cart
+    expected_subtotal = round(3 * 12.90 + 14.50, 2)
+    assert cart.subtotal == expected_subtotal
+    assert cart.total == expected_subtotal  # no discount
 
     order = order_service.create_order(user_id=user_id, cart=cart, order_type="pickup")
 
     assert order.id is not None
-    assert order.total_price == expected_total
+    assert order.total_price == expected_subtotal
 
 
-def test_checkout_exactly_50_no_discount(seeded_engine):
+def test_checkout_total_matches_cart(seeded_engine):
+    """Order total always matches the cart total exactly."""
     menu_service, order_service = _make_services(seeded_engine)
     user_id = _get_user_id(seeded_engine)
 
-    # Build cart that totals exactly 50 (no discount)
-    cart = CartService()
-    cart.add_item(menu_item_id=999, name="Test Item", unit_price=25.00, quantity=2)
-
-    assert cart.subtotal == 50.0
-    assert cart.discount == 0.0
-    assert cart.total == 50.0
-
-    # Verify checkout still works (using real menu item to satisfy FK)
     items = menu_service.get_menu_items()
     item = items[0]
-    cart2 = CartService()
-    cart2.add_item(item.id, item.name, 25.00, quantity=2)
+    cart = CartService()
+    cart.add_item(item.id, item.name, 25.00, quantity=2)
 
-    order = order_service.create_order(user_id=user_id, cart=cart2, order_type="pickup")
+    assert cart.subtotal == 50.0
+    assert cart.total == 50.0
+
+    order = order_service.create_order(user_id=user_id, cart=cart, order_type="pickup")
 
     assert order.total_price == 50.0

@@ -37,24 +37,24 @@ class ReceiptService:
         # Title
         pdf.set_font("Helvetica", "B", 16)
         pdf.set_text_color(30, 30, 30)
-        pdf.cell(0, 10, f"Quittung - Bestellung #{order.id}", ln=True)
+        pdf.cell(0, 10, f"Receipt - Order #{order.id}", ln=True)
         pdf.ln(2)
 
         # Order info
         pdf.set_font("Helvetica", "", 11)
         pdf.set_text_color(60, 60, 60)
         created = order.created_at.strftime("%d.%m.%Y %H:%M") if order.created_at else "-"
-        order_type = "Lieferung" if order.order_type == "delivery" else "Abholung"
+        order_type = "Delivery" if order.order_type == "delivery" else "Pickup"
         status_map = {
-            "pending": "Ausstehend", "preparing": "In Zubereitung",
-            "ready": "Bereit", "delivered": "Geliefert", "collected": "Abgeholt",
+            "pending": "Pending", "preparing": "Preparing",
+            "ready": "Ready", "delivered": "Delivered", "collected": "Collected",
         }
         status = status_map.get(order.status, order.status)
 
         if order.user:
-            pdf.cell(0, 7, f"Kunde: {order.user.first_name} {order.user.last_name}", ln=True)
-        pdf.cell(0, 7, f"Datum: {created}", ln=True)
-        pdf.cell(0, 7, f"Bestellart: {order_type}", ln=True)
+            pdf.cell(0, 7, f"Customer: {order.user.first_name} {order.user.last_name}", ln=True)
+        pdf.cell(0, 7, f"Date: {created}", ln=True)
+        pdf.cell(0, 7, f"Order Type: {order_type}", ln=True)
         pdf.cell(0, 7, f"Status: {status}", ln=True)
         pdf.ln(4)
 
@@ -112,6 +112,6 @@ class ReceiptService:
         pdf.ln(5)
         pdf.set_font("Helvetica", "I", 9)
         pdf.set_text_color(130, 130, 130)
-        pdf.cell(0, 6, "Vielen Dank für Ihre Bestellung bei FoodWerk!", ln=True, align="C")
+        pdf.cell(0, 6, "Thank you for your order at FoodWerk!", ln=True, align="C")
 
         return bytes(pdf.output())

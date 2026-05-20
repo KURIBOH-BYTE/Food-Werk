@@ -173,13 +173,13 @@ def navbar(cart: CartService | None = None) -> None:
     cart_count = cart.item_count
 
     badge_style = "display:inline" if cart_count else "display:none"
-    cart_label = f'Warenkorb<span id="fw-cart-badge" class="fw-cart-badge" style="{badge_style}">{cart_count}</span>'
+    cart_label = f'Cart<span id="fw-cart-badge" class="fw-cart-badge" style="{badge_style}">{cart_count}</span>'
 
     extra_links = ""
     if user:
         if user.get("role") in ("admin", "employee"):
             extra_links += '<li><a href="/admin">Admin</a></li>'
-        extra_links += '<li><a href="/profile">Konto</a></li>'
+        extra_links += '<li><a href="/profile">Account</a></li>'
         extra_links += '<li><a href="/logout">Logout</a></li>'
     else:
         extra_links += '<li><a href="/login">Login</a></li>'
@@ -189,7 +189,7 @@ def navbar(cart: CartService | None = None) -> None:
       <div class="fw-nav-inner">
         <a class="fw-logo" href="/" draggable="false">FOOD<span>WERK</span></a>
         <ul class="fw-nav-links">
-          <li><a href="/menu">Menü</a></li>
+          <li><a href="/menu">Menu</a></li>
           <li><a href="/specials">Specials</a></li>
           <li><a href="/cart">{cart_label}</a></li>
           {extra_links}
@@ -243,7 +243,7 @@ def menu_card(item: dict, on_add_to_cart=None) -> None:
         """)
         if is_available and on_add_to_cart:
             ui.button(
-                "+ Warenkorb",
+                "+ Add to Cart",
                 on_click=lambda i=item: on_add_to_cart(i),
             ).classes("fw-btn fw-btn-primary").style(
                 "position:absolute;bottom:14px;right:14px;font-size:10px!important;padding:7px 12px;"
@@ -263,7 +263,7 @@ def cart_item_row(item: CartItem, index: int, on_remove=None, on_update_qty=None
             if item.extras:
                 ui.label(", ".join(f"+{e['name']}" for e in item.extras)).style("font-size:12px;color:#888")
             if item.notes:
-                ui.label(f"Notiz: {item.notes}").style("font-size:12px;color:#666;font-style:italic")
+                ui.label(f"Note: {item.notes}").style("font-size:12px;color:#666;font-style:italic")
 
         with ui.row().style("align-items:center;gap:8px"):
             ui.button(icon="remove", on_click=lambda i=index: _decrease(i, item.quantity, on_update_qty, on_remove)).props("round flat size=sm").style("color:#F5F0E8")
@@ -289,9 +289,9 @@ def order_card(order: dict, receipt_id: int | None = None) -> None:
 
     with ui.element("div").classes("fw-order-card"):
         with ui.row().style("width:100%;align-items:center;justify-content:space-between"):
-            ui.label(f"Bestellung #{order['id']}").style("font-family:'Bebas Neue',sans-serif;font-size:22px;color:#F5F0E8;letter-spacing:1px")
+            ui.label(f"Order #{order['id']}").style("font-family:'Bebas Neue',sans-serif;font-size:22px;color:#F5F0E8;letter-spacing:1px")
             ui.html(f'<span style="background:{sc};color:#111;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 12px">{STATUS_LABELS.get(status, status)}</span>')
-        ui.label(f"{'Lieferung' if order['order_type'] == 'delivery' else 'Abholung'} · {order['created_at']}").style("font-size:13px;color:#888;margin-top:4px")
+        ui.label(f"{'Delivery' if order['order_type'] == 'delivery' else 'Pickup'} · {order['created_at']}").style("font-size:13px;color:#888;margin-top:4px")
         if order.get("items"):
             ui.html('<div style="border-top:1px solid rgba(255,255,255,0.07);margin:12px 0"></div>')
             for it in order["items"]:
@@ -301,9 +301,9 @@ def order_card(order: dict, receipt_id: int | None = None) -> None:
             ui.label(f"Total: {order['total_price']:.2f} CHF").style("font-weight:700;color:#E63312;font-size:17px")
             if receipt_id is not None:
                 ui.html(
-                    f'<a href="/receipt/{receipt_id}" target="_blank" download="quittung_{receipt_id}.pdf" '
+                    f'<a href="/receipt/{receipt_id}" target="_blank" download="receipt_{receipt_id}.pdf" '
                     f'style="display:inline-flex;align-items:center;gap:5px;background:transparent;'
                     f'color:#E63312;border:1px solid #E63312;font-family:\'Bebas Neue\',sans-serif;'
                     f'font-size:12px;letter-spacing:2px;padding:6px 14px;text-decoration:none;'
-                    f'text-transform:uppercase">&#x2193; Quittung</a>'
+                    f'text-transform:uppercase">&#x2193; Receipt</a>'
                 )

@@ -14,39 +14,36 @@ def test_subtotal_single_item():
     assert cart.subtotal == 12.90
 
 
-def test_discount_applied_above_50():
+def test_total_equals_subtotal_above_50():
+    """No discount applies — total always equals subtotal."""
     cart = CartService()
     cart.add_item(menu_item_id=1, name="Classic Burger", unit_price=30.00, quantity=1)
     cart.add_item(menu_item_id=2, name="Cheeseburger", unit_price=30.00, quantity=1)
 
     assert cart.subtotal == 60.0
-    assert cart.discount == 6.0
-    assert cart.total == 54.0
+    assert cart.total == 60.0
 
 
-def test_no_discount_exactly_50():
+def test_total_equals_subtotal_exactly_50():
     cart = CartService()
     cart.add_item(menu_item_id=1, name="Classic Burger", unit_price=25.00, quantity=2)
 
     assert cart.subtotal == 50.0
-    assert cart.discount == 0.0
     assert cart.total == 50.0
 
 
-def test_no_discount_below_50():
+def test_total_equals_subtotal_below_50():
     cart = CartService()
     cart.add_item(menu_item_id=1, name="Classic Burger", unit_price=12.90, quantity=1)
     cart.add_item(menu_item_id=2, name="Cola", unit_price=3.90, quantity=1)
 
     assert cart.subtotal == 16.80
-    assert cart.discount == 0.0
     assert cart.total == 16.80
 
 
-def test_total_reflects_discount():
+def test_total_equals_subtotal_multiple_quantities():
     cart = CartService()
     cart.add_item(menu_item_id=1, name="Pizza Margherita", unit_price=14.90, quantity=4)
 
-    assert cart.subtotal == 59.60
-    assert cart.discount == round(59.60 * 0.10, 2)
-    assert cart.total == round(59.60 - cart.discount, 2)
+    assert cart.subtotal == round(14.90 * 4, 2)
+    assert cart.total == cart.subtotal
