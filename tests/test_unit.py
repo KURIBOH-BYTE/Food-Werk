@@ -14,8 +14,8 @@ def test_subtotal_single_item():
     assert cart.subtotal == 12.90
 
 
-def test_total_equals_subtotal_above_50():
-    """No discount applies — total always equals subtotal."""
+def test_total_equals_subtotal_two_items():
+    """Total always equals subtotal — no discount applies."""
     cart = CartService()
     cart.add_item(menu_item_id=1, name="Classic Burger", unit_price=30.00, quantity=1)
     cart.add_item(menu_item_id=2, name="Cheeseburger", unit_price=30.00, quantity=1)
@@ -24,7 +24,7 @@ def test_total_equals_subtotal_above_50():
     assert cart.total == 60.0
 
 
-def test_total_equals_subtotal_exactly_50():
+def test_total_equals_subtotal_single_item():
     cart = CartService()
     cart.add_item(menu_item_id=1, name="Classic Burger", unit_price=25.00, quantity=2)
 
@@ -32,7 +32,7 @@ def test_total_equals_subtotal_exactly_50():
     assert cart.total == 50.0
 
 
-def test_total_equals_subtotal_below_50():
+def test_total_equals_subtotal_cheap_items():
     cart = CartService()
     cart.add_item(menu_item_id=1, name="Classic Burger", unit_price=12.90, quantity=1)
     cart.add_item(menu_item_id=2, name="Cola", unit_price=3.90, quantity=1)

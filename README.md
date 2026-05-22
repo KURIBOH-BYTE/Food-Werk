@@ -456,10 +456,10 @@ Tests the business logic of `CartService` in isolation, without a database.
 | Test | Description |
 |---|---|
 | `test_subtotal_empty_cart` | Empty cart has subtotal 0.0 |
-| `test_subtotal_single_item` | Subtotal is calculated correctly |
-| `test_total_equals_subtotal_above_50` | Total equals subtotal even above CHF 50 (no discount) |
-| `test_total_equals_subtotal_exactly_50` | Total equals subtotal at exactly CHF 50 |
-| `test_total_equals_subtotal_below_50` | Total equals subtotal below CHF 50 |
+| `test_subtotal_single_item` | Subtotal is calculated correctly for a single item |
+| `test_total_equals_subtotal_two_items` | Total equals subtotal when cart has two different items |
+| `test_total_equals_subtotal_single_item` | Total equals subtotal for a single item with quantity |
+| `test_total_equals_subtotal_cheap_items` | Total equals subtotal for low-value items |
 | `test_total_equals_subtotal_multiple_quantities` | Total equals subtotal for multiple quantities |
 
 ### `test_db.py` — Database Tests
