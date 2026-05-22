@@ -67,9 +67,9 @@ class ReceiptService:
         # Items header
         pdf.set_font("Helvetica", "B", 11)
         pdf.set_text_color(30, 30, 30)
-        pdf.cell(100, 8, "Artikel", border=0)
-        pdf.cell(30, 8, "Menge", align="C", border=0)
-        pdf.cell(40, 8, "Preis", align="R", border=0, ln=True)
+        pdf.cell(100, 8, "Item", border=0)
+        pdf.cell(30, 8, "Qty", align="C", border=0)
+        pdf.cell(40, 8, "Price", align="R", border=0, ln=True)
 
         pdf.set_draw_color(200, 200, 200)
         pdf.line(20, pdf.get_y(), 190, pdf.get_y())
@@ -79,7 +79,7 @@ class ReceiptService:
         pdf.set_font("Helvetica", "", 11)
         pdf.set_text_color(60, 60, 60)
         for oi in order.order_items:
-            name = oi.menu_item.name if oi.menu_item else f"Artikel #{oi.menu_item_id}"
+            name = oi.menu_item.name if oi.menu_item else f"Item #{oi.menu_item_id}"
             line_total = oi.unit_price * oi.quantity
             pdf.cell(100, 7, name, border=0)
             pdf.cell(30, 7, str(oi.quantity), align="C", border=0)
