@@ -379,7 +379,7 @@ pip install -r requirements.txt
 ```
 
 **Step 6 – Run the application**
-:``bash
+``bash
 python -m foodwerk
 ```
 - If the application does not open automatically, open the URL printed in the console (default: http://localhost:8080).
