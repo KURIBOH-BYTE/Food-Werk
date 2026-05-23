@@ -340,6 +340,7 @@ FoodWerk/
 │       ├── controllers.py      ← Auth / Shopping / Admin / Payment
 │       ├── pages.py            ← All NiceGUI routes
 │       └── components.py       ← Reusable UI components
+├── data/                       ← SQLite database (created on first run)
 ├── frontend/
 │   └── static/
 │       └── images/             ← Product images & logo
@@ -430,7 +431,7 @@ Register a new account to use the customer features.
 
 # Testing
 
-Tests are split across five files and live in the `tests/` folder. The suite covers the most critical paths: authentication, cart logic, database persistence, menu queries, order management, and the full checkout flow — **15 tests** in total.
+Tests are split across six files and live in the `tests/` folder. The suite covers the most critical paths: authentication, cart logic, database persistence, menu queries, order management, and the full checkout flow — **15 tests** in total.
 
 ## Running
 
