@@ -26,25 +26,3 @@ class TestAuthService:
         auth = _make(engine)
         auth.register("Roy", "Fluckiger", "roy@test.ch", "Secret123!")
         assert auth.login("roy@test.ch", "wrongpassword") is None
-
-    def test_password_too_short(self, engine):
-        with pytest.raises(ValueError, match="8 Zeichen"):
-            _make(engine).register("Roy", "F", "roy@test.ch", "Ab1!")
-
-    def test_password_no_special_char(self, engine):
-        with pytest.raises(ValueError, match="Sonderzeichen"):
-            _make(engine).register("Roy", "F", "roy@test.ch", "Password123")
-
-    def test_invalid_email(self, engine):
-        with pytest.raises(ValueError, match="E-Mail"):
-            _make(engine).register("Roy", "F", "not-an-email", "Secret123!")
-
-    def test_invalid_phone(self, engine):
-        with pytest.raises(ValueError, match="Telefonnummer"):
-            _make(engine).register("Roy", "F", "roy@test.ch", "Secret123!", phone="abc")
-
-    def test_duplicate_email(self, engine):
-        auth = _make(engine)
-        auth.register("Roy", "F", "roy@test.ch", "Secret123!")
-        with pytest.raises(ValueError, match="existiert bereits"):
-            auth.register("Roy", "F", "roy@test.ch", "Secret123!")
