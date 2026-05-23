@@ -147,18 +147,8 @@ employees can:
 
 ## 🏛️ Architecture
 
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/2a8513e4-4edb-4571-baa9-075a559ceb30" />
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/e52e6b61-5aa2-440b-8239-d91582c8bfc3" />
 
-### Layers
-- **UI:** NiceGUI (browser-based interface)
-- **Application logic:** Controllers and Services
-- **Persistence:** SQLite + SQLModel ORM + Data Access (DAO)
-
-### Design Decisions
-- MVC structure (Model–View–Controller)
-- Clear separation of concerns
-- Business logic fully independent of the UI layer
-- Server-side cart storage via NiceGUI's `app.storage.user`
 
 ### Design Patterns Used
 - **Model-View-Controller / Layered MVC:** Separates UI, business logic, and database access for clarity, testability, and maintainability.
