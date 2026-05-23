@@ -263,18 +263,24 @@ class PaymentController:
     def stripe_configured(self) -> bool:
         return self._payment.is_configured
 
-    def create_stripe_session(self, base_url: str) -> str:
+    def create_stripe_session(self, base_url: str, success_token: str = "") -> str:
         """Create a Stripe Checkout Session and return the redirect URL.
 
         base_url: e.g. 'http://localhost:8080'
+        success_token: optional token appended to the success URL so the
+        success page can restore the session even after a Stripe redirect
+        clears the browser session cookie.
         Raises ValueError if Stripe is not configured or the API call fails.
         """
         cart = _get_cart()
         if cart.is_empty:
             raise ValueError("Warenkorb ist leer.")
+        success_url = f"{base_url}/payment/success"
+        if success_token:
+            success_url += f"?token={success_token}"
         return self._payment.create_checkout_session(
             cart=cart,
-            success_url=f"{base_url}/payment/success",
+            success_url=success_url,
             cancel_url=f"{base_url}/payment/cancel",
         )
 
