@@ -28,132 +28,72 @@ STATUS_LABELS: dict[str, str] = {
 FW_CSS = """
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --fw-red:    #E63312;
-    --fw-dark:   #111111;
-    --fw-dark2:  #1a1a1a;
-    --fw-dark3:  #222222;
-    --fw-cream:  #F5F0E8;
-    --fw-yellow: #F5C842;
-    --fw-gray:   #888888;
-    --fw-border: rgba(255,255,255,0.07);
-  }
-  body, .q-page { background: var(--fw-dark) !important; color: var(--fw-cream) !important; font-family: 'Barlow', sans-serif !important; overflow-x: hidden; }
+  /* Custom font utility used via class="font-display" */
+  .font-display { font-family: 'Bebas Neue', sans-serif !important; }
+
+  /* NiceGUI / Quasar layout overrides — cannot be expressed with Tailwind alone */
+  body, .q-page { background: #111111 !important; color: #F5F0E8 !important; font-family: 'Barlow', sans-serif !important; overflow-x: hidden; }
   .q-header { background: transparent !important; box-shadow: none !important; }
-  /* Fix NiceGUI's default align-items:flex-start which causes left-only layout */
-  .nicegui-content {
-    align-items: stretch !important;
-    padding: 0 !important;
-    gap: 0 !important;
-    width: 100% !important;
-  }
-  .nicegui-column {
-    align-items: stretch !important;
-    width: 100% !important;
-  }
+  .nicegui-content { align-items: stretch !important; padding: 0 !important; gap: 0 !important; width: 100% !important; }
+  .nicegui-column { align-items: stretch !important; width: 100% !important; }
   .q-page { padding: 0 !important; }
-  .fw-nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
-    height: 64px;
-    background: rgba(17,17,17,0.95); border-bottom: 1px solid var(--fw-border);
-    backdrop-filter: blur(8px);
-  }
-  .fw-nav-inner {
-    max-width: 1600px; margin: 0 auto; height: 100%; padding: 0 60px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .fw-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--fw-red); text-decoration: none; user-select: none; -webkit-user-drag: none; }
-  .fw-logo span { color: var(--fw-cream); }
-  .fw-nav-links { display: flex; gap: 28px; align-items: center; list-style: none; margin: 0; padding: 0; }
-  .fw-nav-links a { color: var(--fw-cream); text-decoration: none; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; transition: color .2s; }
-  .fw-nav-links a:hover { color: var(--fw-red); }
-  .fw-cart-badge { background: var(--fw-red); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; margin-left: 4px; }
-  .fw-btn { font-family: 'Barlow', sans-serif !important; font-weight: 700 !important; font-size: 13px !important; letter-spacing: 1.5px !important; text-transform: uppercase !important; border-radius: 0 !important; }
-  .fw-btn-primary { background: var(--fw-red) !important; color: #fff !important; border: none !important; }
-  .fw-btn-outline { background: transparent !important; color: var(--fw-cream) !important; border: 1.5px solid rgba(245,240,232,0.3) !important; }
-  .fw-page { padding-top: 64px; min-height: 100vh; background: var(--fw-dark); width: 100%; }
-  .fw-section { padding: 80px 60px; }
-  .fw-section-label { font-size: 11px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--fw-red); margin-bottom: 12px; }
-  .fw-section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(32px, 4vw, 52px); line-height: 0.95; color: var(--fw-cream); margin-bottom: 16px; }
-  .fw-hero { width: 100%; min-height: 92vh; display: flex; align-items: center; background: linear-gradient(135deg, #0a0a0a 0%, #1a0800 60%, #2a0f00 100%); position: relative; overflow: hidden; }
-  .fw-hero-bg { position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 28vw; color: rgba(255,255,255,0.025); line-height: 1; top: 50%; left: 50%; transform: translate(-50%, -50%); white-space: nowrap; user-select: none; pointer-events: none; }
-  .fw-hero-content { padding: 0 60px; position: relative; z-index: 2; max-width: 680px; }
-  .fw-hero-tag { display: inline-block; background: var(--fw-red); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; padding: 6px 16px; margin-bottom: 24px; }
-  .fw-hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(72px, 11vw, 130px); line-height: 0.88; color: var(--fw-cream); margin-bottom: 24px; }
-  .fw-hero-title span { color: var(--fw-red); }
-  .fw-hero-sub { font-size: 17px; color: rgba(245,240,232,0.65); line-height: 1.6; margin-bottom: 40px; max-width: 420px; }
-  .fw-hero-img { position: absolute; right: 5%; top: 50%; transform: translateY(-50%); width: 44vw; max-width: 580px; height: auto; object-fit: cover; border-radius: 4px; box-shadow: 0 0 120px rgba(230,51,18,0.18); }
-  .fw-ticker { width: 100%; background: var(--fw-red); padding: 13px 0; overflow: hidden; white-space: nowrap; }
-  .fw-ticker-inner { display: inline-block; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; color: #fff; animation: fwtick 24s linear infinite; }
+
+  /* Quasar form field overrides */
+  .q-field__control { background: rgba(255,255,255,0.05) !important; }
+  .q-field__label { color: rgba(245,240,232,0.6) !important; }
+  input, textarea { color: #F5F0E8 !important; }
+  .q-select__dropdown-icon { color: #F5F0E8 !important; }
+  .q-field__native, .q-field__input { color: #F5F0E8 !important; }
+  .q-menu { background: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.1) !important; }
+  .q-item { color: #F5F0E8 !important; font-size: 16px !important; padding: 12px 16px !important; }
+  .q-item:hover, .q-item--active { background: rgba(230,51,18,0.15) !important; color: #fff !important; }
+  .q-item--active { color: #E63312 !important; font-weight: 700 !important; }
+
+  /* Quasar date picker overrides */
+  .q-date { background: #1a1a1a !important; color: #F5F0E8 !important; border: 1px solid rgba(255,255,255,0.1); }
+  .q-date__header { background: #E63312 !important; }
+  .q-date__header-title, .q-date__header-subtitle { color: #fff !important; }
+  .q-date__calendar-item .q-btn { color: #F5F0E8 !important; }
+  .q-date__calendar-item .q-btn.bg-primary { background: #E63312 !important; color: #fff !important; }
+  .q-date__navigation .q-btn { color: #F5F0E8 !important; }
+  .q-date__years-item .q-btn, .q-date__months-item .q-btn { color: #F5F0E8 !important; }
+  .q-date__calendar-weekdays > div { color: #888 !important; }
+  .q-date__today .q-btn { border: 1px solid #E63312 !important; }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #111111; }
+  ::-webkit-scrollbar-thumb { background: #E63312; }
+
+  /* Ticker animation — keyframes not expressible in Tailwind */
   @keyframes fwtick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  .fw-stats { width: 100%; background: var(--fw-red); padding: 56px 60px; display: flex; }
-  .fw-stat { flex: 1; text-align: center; border-right: 1px solid rgba(255,255,255,0.2); padding: 16px; }
-  .fw-stat:last-child { border-right: none; }
-  .fw-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 68px; color: #fff; line-height: 1; }
-  .fw-stat-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.75); margin-top: 6px; }
-  /* Item cards — Lieferando/UberEats inspired */
-  .fw-items-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .fw-item-card { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.07); overflow: hidden; cursor: pointer; display: flex; flex-direction: column; transition: border-color .2s, transform .2s, box-shadow .2s; }
-  .fw-item-card:hover { border-color: var(--fw-red); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(230,51,18,0.12); }
-  .fw-item-card.unavailable { opacity: 0.45; pointer-events: none; }
-  .fw-item-thumb { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
-  .fw-item-thumb-empty { width: 100%; aspect-ratio: 4/3; background: linear-gradient(135deg,#1a0a00,#2a1200); display: flex; align-items: center; justify-content: center; }
-  .fw-item-body { padding: 14px 16px 16px; display: flex; flex-direction: column; flex: 1; }
-  .fw-item-name { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--fw-cream); letter-spacing: 1px; line-height: 1.1; margin-bottom: 4px; }
-  .fw-item-desc { font-size: 12px; color: #666; line-height: 1.4; margin-bottom: 12px; flex: 1; }
-  .fw-item-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; gap: 8px; }
-  .fw-item-price { font-size: 17px; font-weight: 700; color: var(--fw-red); }
-  .fw-item-original { font-size: 12px; color: #555; text-decoration: line-through; }
-  .fw-item-badge { position: absolute; top: 10px; left: 10px; background: var(--fw-yellow); color: #111; font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 3px 8px; }
-  .fw-item-add { background: var(--fw-red); color: #fff; border: none; font-family: 'Barlow',sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 8px 14px; cursor: pointer; white-space: nowrap; transition: background .2s; }
-  .fw-item-add:hover { background: #c4290e; }
-  /* Legacy menu grid kept for home page */
-  .fw-menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
-  .fw-menu-card { position: relative; overflow: hidden; cursor: pointer; transition: transform .3s; aspect-ratio: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px; background: var(--fw-dark2); }
+  .fw-ticker-inner { display: inline-block; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; color: #fff; animation: fwtick 24s linear infinite; }
+
+  /* Menu card: ::before gradient overlay + image hover scale — requires pseudo-elements */
+  .fw-menu-card { position: relative; overflow: hidden; cursor: pointer; transition: transform .3s; aspect-ratio: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px; background: #1a1a1a; }
   .fw-menu-card:hover { transform: scale(1.02); z-index: 2; }
   .fw-menu-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 55%); z-index: 1; }
   .fw-menu-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
   .fw-menu-card:hover img { transform: scale(1.06); }
-  .fw-menu-card-body { position: relative; z-index: 2; }
-  .fw-menu-card-name { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--fw-cream); letter-spacing: 1px; }
-  .fw-menu-card-price { font-size: 14px; color: var(--fw-red); font-weight: 700; margin-top: 4px; }
-  .fw-menu-card-badge { position: absolute; top: 16px; left: 16px; z-index: 3; background: var(--fw-yellow); color: #111; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 10px; }
   .fw-menu-card.big { grid-column: span 2; aspect-ratio: 2/1; }
-  /* Category filter bar */
-  .fw-cat-bar { position: sticky; top: 64px; z-index: 100; background: #111111; border-bottom: 1px solid rgba(255,255,255,0.07); width: 100%; }
-  .fw-cat-bar-inner { max-width: 1600px; margin: 0 auto; padding: 0 52px; display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
-  .fw-cat-bar-inner::-webkit-scrollbar { display: none; }
-  .fw-cat-link { color: rgba(245,240,232,0.5); text-decoration: none; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 14px 20px; display: block; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
-  .fw-cat-link:hover { color: var(--fw-cream); border-bottom-color: var(--fw-red); }
-  .fw-cat-link.active { color: var(--fw-cream); border-bottom-color: var(--fw-red); }
-  /* Section anchors */
-  .fw-cat-section { scroll-margin-top: 112px; padding: 32px 0 0; }
-  .fw-cat-title { max-width: 1600px; margin: 0 auto; padding: 0 60px 14px; display: flex; align-items: center; gap: 16px; }
-  .fw-cat-title-line { flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
-  /* Legacy special card kept for specials page */
-  .fw-special-card { background: var(--fw-dark2); padding: 28px; border: 1px solid var(--fw-border); display: flex; align-items: center; gap: 24px; transition: border-color .2s; }
-  .fw-special-card:hover { border-color: var(--fw-red); }
-  .fw-special-img { width: 120px; height: 100px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
-  .fw-special-name { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--fw-cream); letter-spacing: 1px; }
-  .fw-special-desc { font-size: 13px; color: var(--fw-gray); margin: 6px 0; line-height: 1.5; }
-  .fw-special-price { font-size: 20px; font-weight: 700; color: var(--fw-red); }
-  .fw-special-original { font-size: 13px; color: var(--fw-gray); text-decoration: line-through; margin-left: 8px; }
-  .fw-card { background: var(--fw-dark2) !important; border: 1px solid var(--fw-border) !important; border-radius: 0 !important; color: var(--fw-cream) !important; }
-  .fw-page-header { width: 100%; background: var(--fw-dark2); padding: 24px 60px; border-bottom: 1px solid var(--fw-border); }
-  .fw-order-card { background: var(--fw-dark2); border: 1px solid var(--fw-border); padding: 20px; margin-bottom: 12px; }
-  .fw-admin-card { background: var(--fw-dark2) !important; border: 1px solid var(--fw-border) !important; border-radius: 0 !important; color: var(--fw-cream) !important; margin-bottom: 12px; }
-  .q-field__control { background: rgba(255,255,255,0.05) !important; }
-  .q-field__label { color: rgba(245,240,232,0.6) !important; }
-  input, textarea { color: var(--fw-cream) !important; }
-  .q-select__dropdown-icon { color: var(--fw-cream) !important; }
-  .q-field__native, .q-field__input { color: var(--fw-cream) !important; }
-  .q-menu { background: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.1) !important; }
-  .q-item { color: var(--fw-cream) !important; font-size: 16px !important; padding: 12px 16px !important; }
-  .q-item:hover, .q-item--active { background: rgba(230,51,18,0.15) !important; color: #fff !important; }
-  .q-item--active { color: var(--fw-red) !important; font-weight: 700 !important; }
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--fw-dark); }
-  ::-webkit-scrollbar-thumb { background: var(--fw-red); }
+
+  /* Item card: hover transitions & unavailable state */
+  .fw-item-card { transition: border-color .2s, transform .2s, box-shadow .2s; }
+  .fw-item-card:hover { border-color: #E63312 !important; transform: translateY(-3px); box-shadow: 0 8px 32px rgba(230,51,18,0.12); }
+  .fw-item-card.unavailable { opacity: 0.45; pointer-events: none; }
+
+  /* Category filter link: active/hover border underline */
+  .fw-cat-link { display: block; color: rgba(245,240,232,0.5); text-decoration: none; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 14px 20px; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  .fw-cat-link:hover, .fw-cat-link.active { color: #F5F0E8; border-bottom-color: #E63312; }
+
+  /* Quasar button overrides for fw-btn variants */
+  .fw-btn { font-family: 'Barlow', sans-serif !important; font-weight: 700 !important; font-size: 13px !important; letter-spacing: 1.5px !important; text-transform: uppercase !important; border-radius: 0 !important; }
+  .fw-btn-primary { background: #E63312 !important; color: #fff !important; border: none !important; }
+  .fw-btn-outline { background: transparent !important; color: #F5F0E8 !important; border: 1.5px solid rgba(245,240,232,0.3) !important; }
+
+  /* Shared card containers */
+  .fw-order-card { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.07); padding: 20px; margin-bottom: 12px; }
+  .fw-admin-card { background: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.07) !important; border-radius: 0 !important; color: #F5F0E8 !important; margin-bottom: 12px; }
 </style>
 """
 
@@ -172,26 +112,32 @@ def navbar(cart: CartService | None = None) -> None:
     user = app.storage.user.get("user")
     cart_count = cart.item_count
 
-    badge_style = "display:inline" if cart_count else "display:none"
-    cart_label = f'Cart<span id="fw-cart-badge" class="fw-cart-badge" style="{badge_style}">{cart_count}</span>'
+    badge_display = "inline-block" if cart_count else "none"
+    cart_label = (
+        f'Cart<span id="fw-cart-badge" '
+        f'class="bg-[#E63312] text-white text-[10px] font-bold px-[7px] py-[2px] rounded-[20px] ml-1" '
+        f'style="display:{badge_display}">{cart_count}</span>'
+    )
+
+    nav_link = 'class="text-[#F5F0E8] no-underline text-[12px] font-bold tracking-[1.5px] uppercase hover:text-[#E63312] transition-colors"'
 
     extra_links = ""
     if user:
         if user.get("role") in ("admin", "employee"):
-            extra_links += '<li><a href="/admin">Admin</a></li>'
-        extra_links += '<li><a href="/profile">Account</a></li>'
-        extra_links += '<li><a href="/logout">Logout</a></li>'
+            extra_links += f'<li><a {nav_link} href="/admin">Admin</a></li>'
+        extra_links += f'<li><a {nav_link} href="/profile">Account</a></li>'
+        extra_links += f'<li><a {nav_link} href="/logout">Logout</a></li>'
     else:
-        extra_links += '<li><a href="/login">Login</a></li>'
+        extra_links += f'<li><a {nav_link} href="/login">Login</a></li>'
 
     ui.html(f"""
-    <nav class="fw-nav">
-      <div class="fw-nav-inner">
-        <a class="fw-logo" href="/" draggable="false">FOOD<span>WERK</span></a>
-        <ul class="fw-nav-links">
-          <li><a href="/menu">Menu</a></li>
-          <li><a href="/specials">Specials</a></li>
-          <li><a href="/cart">{cart_label}</a></li>
+    <nav class="fixed top-0 left-0 right-0 z-[999] h-16 bg-[rgba(17,17,17,0.95)] border-b border-[rgba(255,255,255,0.07)] backdrop-blur-sm">
+      <div class="max-w-[1600px] mx-auto h-full px-[60px] flex items-center justify-between">
+        <a class="font-display text-[28px] tracking-[2px] text-[#E63312] no-underline select-none" href="/" draggable="false">FOOD<span class="text-[#F5F0E8]">WERK</span></a>
+        <ul class="flex gap-7 items-center list-none m-0 p-0">
+          <li><a {nav_link} href="/menu">Menu</a></li>
+          <li><a {nav_link} href="/specials">Specials</a></li>
+          <li><a {nav_link} href="/cart">{cart_label}</a></li>
           {extra_links}
         </ul>
       </div>
@@ -205,7 +151,6 @@ def menu_card(item: dict, on_add_to_cart=None) -> None:
     is_available = item.get("is_available", True)
     is_special = item.get("is_special", False)
 
-    # Determine active discount price
     discount_price = item.get("discount_price")
     discount_until = item.get("discount_until")
     discount_active = (
@@ -215,27 +160,31 @@ def menu_card(item: dict, on_add_to_cart=None) -> None:
     effective_price = discount_price if discount_active else item["price"]
 
     if item.get("image_url"):
-        img_html = f'<img class="fw-item-thumb" src="{item["image_url"]}" alt="{item["name"]}" loading="lazy">'
+        img_html = f'<img class="w-full aspect-[4/3] object-cover block" src="{item["image_url"]}" alt="{item["name"]}" loading="lazy">'
     else:
-        img_html = '<div class="fw-item-thumb-empty"><span style="font-family:\'Bebas Neue\',sans-serif;font-size:32px;color:#333">FW</span></div>'
+        img_html = '<div class="w-full aspect-[4/3] flex items-center justify-center" style="background:linear-gradient(135deg,#1a0a00,#2a1200)"><span class="font-display text-[32px] text-[#333]">FW</span></div>'
 
-    badge_html = '<div class="fw-item-badge">Special</div>' if is_special else ""
-    original_html = f'<span class="fw-item-original">{item["price"]:.2f}</span>' if discount_active else ""
+    badge_html = '<div class="absolute top-[10px] left-[10px] bg-[#F5C842] text-[#111] text-[9px] font-bold tracking-[2px] uppercase px-2 py-[3px]">Special</div>' if is_special else ""
+    unavailable_badge_html = '<div class="absolute top-[10px] right-[10px] bg-[rgba(0,0,0,0.75)] text-[#aaa] text-[9px] font-bold tracking-[2px] uppercase px-2 py-[3px] border border-[rgba(255,255,255,0.15)]">Not Available</div>' if not is_available else ""
+    original_html = f'<span class="text-[12px] text-[#555] line-through ml-1">{item["price"]:.2f}</span>' if discount_active else ""
     desc = item.get("description") or ""
-    desc_html = f'<div class="fw-item-desc">{desc[:60]}{"…" if len(desc) > 60 else ""}</div>' if desc else '<div class="fw-item-desc"></div>'
+    desc_html = f'<div class="text-[12px] text-[#666] leading-[1.4] mb-3 flex-1">{desc[:60]}{"…" if len(desc) > 60 else ""}</div>' if desc else '<div class="flex-1"></div>'
 
-    card_class = "fw-item-card" + ("" if is_available else " unavailable")
+    card_class = "fw-item-card bg-[#1a1a1a] border border-[rgba(255,255,255,0.07)] overflow-hidden cursor-pointer flex flex-col relative"
+    if not is_available:
+        card_class += " unavailable"
 
-    with ui.element("div").classes(card_class).style("position:relative"):
+    with ui.element("div").classes(card_class):
         ui.html(f"""
           {img_html}
           {badge_html}
-          <div class="fw-item-body">
-            <div class="fw-item-name">{item["name"]}</div>
+          {unavailable_badge_html}
+          <div class="p-4 flex flex-col flex-1">
+            <div class="font-display text-[20px] text-[#F5F0E8] tracking-[1px] leading-[1.1] mb-1">{item["name"]}</div>
             {desc_html}
-            <div class="fw-item-footer">
+            <div class="flex items-center justify-between mt-auto gap-2">
               <div>
-                <span class="fw-item-price">{effective_price:.2f} CHF</span>
+                <span class="text-[17px] font-bold text-[#E63312]">{effective_price:.2f} CHF</span>
                 {original_html}
               </div>
             </div>
@@ -245,33 +194,28 @@ def menu_card(item: dict, on_add_to_cart=None) -> None:
             ui.button(
                 "+ Add to Cart",
                 on_click=lambda i=item: on_add_to_cart(i),
-            ).classes("fw-btn fw-btn-primary").style(
-                "position:absolute;bottom:14px;right:14px;font-size:10px!important;padding:7px 12px;"
+            ).classes("fw-btn fw-btn-primary absolute bottom-[14px] right-[14px]").style(
+                "font-size:10px!important;padding:7px 12px;"
             )
 
 
 def cart_item_row(item: CartItem, index: int, on_remove=None, on_update_qty=None) -> None:
     """One row in the dark shopping cart."""
-    with ui.element("div").style(
-        "display:flex;align-items:center;justify-content:space-between;"
-        "padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.07);"
-    ):
-        with ui.column().style("flex:1;gap:2px"):
-            ui.label(item.name).style(
-                "font-family:'Bebas Neue',sans-serif;font-size:20px;color:#F5F0E8;letter-spacing:1px"
-            )
+    with ui.element("div").classes("flex items-center justify-between py-4 border-b border-[rgba(255,255,255,0.07)]"):
+        with ui.column().classes("flex-1 gap-[2px]"):
+            ui.label(item.name).classes("font-display text-[20px] text-[#F5F0E8] tracking-[1px]")
             if item.extras:
-                ui.label(", ".join(f"+{e['name']}" for e in item.extras)).style("font-size:12px;color:#888")
+                ui.label(", ".join(f"+{e['name']}" for e in item.extras)).classes("text-[12px] text-[#888]")
             if item.notes:
-                ui.label(f"Note: {item.notes}").style("font-size:12px;color:#666;font-style:italic")
+                ui.label(f"Note: {item.notes}").classes("text-[12px] text-[#666] italic")
 
-        with ui.row().style("align-items:center;gap:8px"):
-            ui.button(icon="remove", on_click=lambda i=index: _decrease(i, item.quantity, on_update_qty, on_remove)).props("round flat size=sm").style("color:#F5F0E8")
-            ui.label(str(item.quantity)).style("font-size:18px;font-weight:700;min-width:24px;text-align:center;color:#F5F0E8")
-            ui.button(icon="add", on_click=lambda i=index: on_update_qty(i, item.quantity + 1) if on_update_qty else None).props("round flat size=sm").style("color:#F5F0E8")
+        with ui.row().classes("items-center gap-2"):
+            ui.button(icon="remove", on_click=lambda i=index: _decrease(i, item.quantity, on_update_qty, on_remove)).props("round flat size=sm").classes("text-[#F5F0E8]")
+            ui.label(str(item.quantity)).classes("text-[18px] font-bold min-w-[24px] text-center text-[#F5F0E8]")
+            ui.button(icon="add", on_click=lambda i=index: on_update_qty(i, item.quantity + 1) if on_update_qty else None).props("round flat size=sm").classes("text-[#F5F0E8]")
 
-        ui.label(f"{item.total:.2f} CHF").style("font-weight:700;min-width:90px;text-align:right;color:#E63312;font-size:16px")
-        ui.button(icon="delete", on_click=lambda i=index: on_remove(i) if on_remove else None).props("round flat size=sm").style("color:#555")
+        ui.label(f"{item.total:.2f} CHF").classes("font-bold min-w-[90px] text-right text-[#E63312] text-[16px]")
+        ui.button(icon="delete", on_click=lambda i=index: on_remove(i) if on_remove else None).props("round flat size=sm").classes("text-[#555]")
 
 
 def _decrease(index: int, current_qty: int, on_update_qty, on_remove) -> None:
@@ -288,22 +232,23 @@ def order_card(order: dict, receipt_id: int | None = None) -> None:
     sc = {"pending": "#F5C842", "preparing": "#378ADD", "ready": "#639922", "delivered": "#888", "collected": "#888"}.get(status, "#888")
 
     with ui.element("div").classes("fw-order-card"):
-        with ui.row().style("width:100%;align-items:center;justify-content:space-between"):
-            ui.label(f"Order #{order['id']}").style("font-family:'Bebas Neue',sans-serif;font-size:22px;color:#F5F0E8;letter-spacing:1px")
-            ui.html(f'<span style="background:{sc};color:#111;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 12px">{STATUS_LABELS.get(status, status)}</span>')
-        ui.label(f"{'Delivery' if order['order_type'] == 'delivery' else 'Pickup'} · {order['created_at']}").style("font-size:13px;color:#888;margin-top:4px")
+        with ui.row().classes("w-full items-center justify-between"):
+            ui.label(f"Order #{order['id']}").classes("font-display text-[22px] text-[#F5F0E8] tracking-[1px]")
+            ui.html(f'<span class="text-[#111] text-[10px] font-bold tracking-[2px] uppercase px-3 py-1" style="background:{sc}">{STATUS_LABELS.get(status, status)}</span>')
+        ui.label(
+            f"{'Delivery' if order['order_type'] == 'delivery' else 'Pickup'} · {order['created_at']}"
+        ).classes("text-[13px] text-[#888] mt-1")
         if order.get("items"):
-            ui.html('<div style="border-top:1px solid rgba(255,255,255,0.07);margin:12px 0"></div>')
+            ui.html('<div class="border-t border-[rgba(255,255,255,0.07)] my-3"></div>')
             for it in order["items"]:
-                ui.label(f"{it['quantity']}× {it['name']} — {it['total']:.2f} CHF").style("font-size:13px;color:#aaa")
-        ui.html('<div style="border-top:1px solid rgba(255,255,255,0.07);margin:12px 0"></div>')
-        with ui.row().style("width:100%;align-items:center;justify-content:space-between"):
-            ui.label(f"Total: {order['total_price']:.2f} CHF").style("font-weight:700;color:#E63312;font-size:17px")
+                ui.label(f"{it['quantity']}× {it['name']} — {it['total']:.2f} CHF").classes("text-[13px] text-[#aaa]")
+        ui.html('<div class="border-t border-[rgba(255,255,255,0.07)] my-3"></div>')
+        with ui.row().classes("w-full items-center justify-between"):
+            ui.label(f"Total: {order['total_price']:.2f} CHF").classes("font-bold text-[#E63312] text-[17px]")
             if receipt_id is not None:
                 ui.html(
                     f'<a href="/receipt/{receipt_id}" target="_blank" download="receipt_{receipt_id}.pdf" '
-                    f'style="display:inline-flex;align-items:center;gap:5px;background:transparent;'
-                    f'color:#E63312;border:1px solid #E63312;font-family:\'Bebas Neue\',sans-serif;'
-                    f'font-size:12px;letter-spacing:2px;padding:6px 14px;text-decoration:none;'
-                    f'text-transform:uppercase">&#x2193; Receipt</a>'
+                    f'class="inline-flex items-center gap-[5px] bg-transparent text-[#E63312] '
+                    f'border border-[#E63312] font-display text-[12px] tracking-[2px] '
+                    f'px-[14px] py-[6px] no-underline uppercase">&#x2193; Receipt</a>'
                 )
