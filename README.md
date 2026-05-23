@@ -249,7 +249,8 @@ The application uses **SQLModel** to map domain objects to a SQLite database.
 
 ### 1. Browser-based App (NiceGUI)
 
-The application runs entirely in the browser. Customers can browse the menu, manage their cart, checkout, and pay — all without page reloads. Admins manage orders and specials through a dedicated dashboard.
+Customers can browse the menu, manage their cart, checkout, and pay — all without page reloads. 
+Admins manage orders and specials through a dedicated dashboard.
 
 **Architecture note:** The browser is a thin client; all UI state and business logic live on the server-side NiceGUI app.
 
@@ -378,7 +379,7 @@ python -m venv .venv --without-pip
 
 **Step 4 – Activate the virtual environment**
 ```bash
-.venv\Scripts\activate
+.venv/Scripts/activate
 ```
 
 **Step 5 – Install dependencies**
@@ -387,8 +388,8 @@ pip install -r requirements.txt
 ```
 
 **Step 6 – Run the application**
-```bash
-python3 -m foodwerk
+:``bash
+python -m foodwerk
 ```
 - If the application does not open automatically, open the URL printed in the console (default: http://localhost:8080).
 
@@ -523,7 +524,7 @@ Tests order creation and status transitions.
 
 | Name         | Contribution               |
 |--------------|----------------------------|
-| Roy Fluckiger | Database & ORM + documentation |
+| Roy Flückiger | Database & ORM + documentation |
 | Fabrice Balzan| NiceGUI UI + documentation     |
 | Ryan Wolf     | Business logic + documentation |
 
