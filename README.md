@@ -147,7 +147,8 @@ employees can:
 
 ## 🏛️ Architecture
 
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/e52e6b61-5aa2-440b-8239-d91582c8bfc3" />
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/75f5dbb7-ada8-45bc-bdc4-d50b4c34742a" />
+
 
 
 ### Design Patterns Used
