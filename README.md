@@ -428,109 +428,54 @@ Register a new account to use the customer features.
 
 
 ---
+
 # Testing
 
-Tests are split across six files and live in the `tests/` folder.
+Die Tests sind in drei Schichten aufgeteilt und befinden sich im Ordner `tests/`.
 
-## Running
+## Ausführen
 
 ```bash
-# All tests
+# Alle Tests
 pytest
 
-# Single file
+# Einzelne Datei
 pytest tests/test_unit.py
 pytest tests/test_db.py
 pytest tests/test_integration.py
 
-# With verbose output
+# Mit Output
 pytest -v
 ```
 
-## Test Structure
+## Teststruktur
 
 ### `test_unit.py` — Unit Tests
 
-Tests the business logic of `CartService` in isolation, without a database.
+Testet die Geschäftslogik von `CartService` isoliert, ohne Datenbank.
 
-| Test | Description |
+| Test | Beschreibung |
 |---|---|
-| `test_subtotal_empty_cart` | Empty cart has subtotal 0.0 |
-| `test_subtotal_single_item` | Subtotal is calculated correctly for a single item |
-| `test_total_equals_subtotal_two_items` | Total equals subtotal when cart has two different items |
-| `test_total_equals_subtotal_single_item` | Total equals subtotal for a single item with quantity |
-| `test_total_equals_subtotal_cheap_items` | Total equals subtotal for low-value items |
-| `test_total_equals_subtotal_multiple_quantities` | Total equals subtotal for multiple quantities |
+| `test_subtotal_empty_cart` | Leerer Warenkorb hat Subtotal 0.0 |
+| `test_subtotal_single_item` | Subtotal wird korrekt berechnet |
+| `test_discount_applied_above_50` | 10% Rabatt wird ab CHF 50.01 angewendet |
+| `test_no_discount_exactly_50` | Kein Rabatt bei genau CHF 50.00 |
+| `test_no_discount_below_50` | Kein Rabatt unter CHF 50.00 |
+| `test_total_reflects_discount` | Total = Subtotal - Rabatt |
 
-### `test_db.py` — Database Tests
+### `test_db.py` — Datenbank Tests
 
-Tests DAOs directly with an in-memory SQLite database (no external setup required).
+Testet DAOs direkt mit einer In-Memory SQLite Datenbank (kein externes Setup nötig).
 
-| Test | Description |
+| Test | Beschreibung |
 |---|---|
-| `test_menu_query_returns_seeded_items` | Available menu items are queried correctly |
-| `test_unavailable_items_excluded_from_available_query` | Unavailable items are filtered out |
-| `test_saving_order_persists_order_and_items` | Order and order items are persisted correctly |
+| `test_menu_query_returns_seeded_items` | Verfügbare Menüartikel werden korrekt abgefragt |
+| `test_unavailable_items_excluded_from_available_query` | Nicht verfügbare Artikel werden gefiltert |
+| `test_saving_order_persists_order_and_items` | Bestellung und Bestellpositionen werden gespeichert |
 
-### `test_integration.py` — Integration Tests
+### `test_integration.py` — Integrationstests
 
-Tests the full checkout flow with `MenuService`, `CartService`, and `OrderService` together.
-
-| Test | Description |
-|---|---|
-| `test_checkout_single_item_creates_order` | Order with a single item is created correctly |
-| `test_checkout_multiple_items_total_equals_subtotal` | Total equals subtotal for multi-item orders |
-| `test_checkout_total_matches_cart` | Order total always matches the cart total exactly |
-
-### `test_auth_service.py` — AuthService Tests
-
-Tests registration, login, and input validation logic.
-
-| Test | Description |
-|---|---|
-| `test_register_creates_user` | New user is saved correctly |
-| `test_login_success` | Login with correct credentials returns user |
-| `test_login_wrong_password` | Login with wrong password fails |
-| `test_password_too_short` | Password under 8 characters is rejected |
-| `test_password_no_special_char` | Password without special character is rejected |
-| `test_invalid_email` | Invalid email is rejected |
-| `test_invalid_phone` | Invalid phone number is rejected |
-| `test_duplicate_email` | Duplicate email registration is rejected |
-
-### `test_cart_service.py` — CartService Tests
-
-Tests cart operations and serialization.
-
-| Test | Description |
-|---|---|
-| `test_add_item` | Item is added to the cart |
-| `test_remove_item` | Item is removed from the cart |
-| `test_update_quantity` | Item quantity is updated correctly |
-| `test_total` | Total is calculated correctly |
-| `test_serialization_roundtrip` | Cart is correctly serialized and restored |
-
-### `test_menu_service.py` — MenuService Tests
-
-Tests menu queries and availability management.
-
-| Test | Description |
-|---|---|
-| `test_get_categories` | Categories are loaded correctly |
-| `test_get_menu_items_available_only` | Only available items are returned |
-| `test_get_menu_items_by_category` | Filtering by category works correctly |
-| `test_set_availability` | Item availability is updated correctly |
-| `test_get_specials_empty` | Specials list is returned correctly |
-
-### `test_order_service.py` — OrderService Tests
-
-Tests order creation and status management.
-
-| Test | Description |
-|---|---|
-| `test_create_pickup_order` | Pickup order is created correctly |
-| `test_create_delivery_order` | Delivery order with address is created correctly |
-| `test_update_order_status` | Order status is updated correctly |
-
+Testet den vollständigen Checkout-Ablauf mit `MenuService`, `CartService` und `OrderService` zusammen.
 ## Technology
 
 - **pytest** — testing framework
