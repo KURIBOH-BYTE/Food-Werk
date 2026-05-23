@@ -345,7 +345,6 @@ FoodWerk/
 │       └── images/             ← Product images & logo
 └── tests/
     ├── conftest.py
-    ├── test_unit.py            ← CartService unit tests
     ├── test_db.py              ← DAO database tests
     ├── test_integration.py     ← End-to-end checkout tests
     ├── test_auth_service.py
