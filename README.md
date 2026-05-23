@@ -158,7 +158,7 @@ employees can:
 - **Composition Root:** `FoodWerkApplication` wires all dependencies (DAOs, Services, Controllers, Pages) in one place.
 
 ---
-# Klassendiagramm
+# Class Diagram
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/49b6e5f0-63eb-47a5-98cc-57759fb0f546" />
 
 
