@@ -426,6 +426,8 @@ python -m foodwerk
 
 Use expiry `12/26` and CVV `123` with the success cards.
 
+---
+
 ## ⚠️ Testing
 
 Tests are split across six files and live in the `tests/` folder. The suite covers the most critical paths: authentication, cart logic, database persistence, menu queries, order management, and the full checkout flow — **15 tests** in total.
