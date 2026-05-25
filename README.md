@@ -375,7 +375,7 @@ python -m foodwerk
 
 ---
 
-👷 ## How to Use
+## 👷 How to Use
 
 ### Demo Accounts
 
