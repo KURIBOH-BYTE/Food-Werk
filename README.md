@@ -139,11 +139,12 @@ employees can:
 - Admin
 
 ---
-## 🚧 Wireframe Wireframes / Mockups
+## 🌄 Wireframe Wireframes / Mockups
 <img width="1319" height="879" alt="image" src="https://github.com/user-attachments/assets/db188b1d-c988-410e-bda9-c552d4d0d9f1" />
 
 <img width="555" height="894" alt="image" src="https://github.com/user-attachments/assets/d8f10c6d-cd10-43a9-a337-7e522199dce5" />
 
+---
 
 ## 🏛️ Architecture
 
@@ -158,7 +159,7 @@ employees can:
 - **Composition Root:** `FoodWerkApplication` wires all dependencies (DAOs, Services, Controllers, Pages) in one place.
 
 ---
-# Class Diagram
+## 📈 Class Diagram
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/49b6e5f0-63eb-47a5-98cc-57759fb0f546" />
 
 
@@ -207,6 +208,9 @@ The controllers mediate between the UI layer (NiceGUI Pages) and the services.
 - **ShoppingController** — Menu, shopping cart, order processing
 - **AdminController** — Order management, menu management, specials
 - **PaymentController** — Stripe Checkout flow
+  
+---
+
 ## 🗄️ Database and ORM
 
 The application uses **SQLModel** to map domain objects to a SQLite database.
@@ -265,20 +269,6 @@ All data is managed via **SQLModel** (built on SQLAlchemy). The database is auto
 
 ---
 
-## 💳 Test Cards
-
-The payment page uses simulated card validation — no real payment is processed.
-
-| Card Number          | Brand      | Result          |
-|----------------------|------------|-----------------|
-| 4242 4242 4242 4242  | Visa       | Always succeeds |
-| 5555 5555 5555 4444  | Mastercard | Always succeeds |
-| 4000 0000 0000 0002  | Visa       | Always declined |
-
-Use expiry `12/26` and CVV `123` for the success cards.
-
----
-
 ## ⚙️ Implementation
 
 ### Technology
@@ -289,7 +279,6 @@ Use expiry `12/26` and CVV `123` for the success cards.
 - bcrypt
 - pytest
 
----
 
 ### Libraries Used
 
@@ -384,44 +373,60 @@ python -m foodwerk
 ```
 - If the application does not open automatically, open the URL printed in the console (default: http://localhost:8080).
 
-### 4. Demo Accounts
-
-| Role     | Email               | Password      |
-|----------|---------------------|---------------|
-| Admin    | admin@foodwerk.ch   | admin123      |
-| Employee | max@foodwerk.ch     | employee123   |
-
-Register a new account to use the customer features.
-
-### 5. Usage
-
-**Order food:**
-1. Go to **Menu** and browse by category.
-2. Click an item to customize (remove ingredients).
-3. Go to **Cart** and review your order.
-4. Click **Checkout**, choose delivery or pickup, fill in details.
-5. Enter a test card and click **Pay Now**.
-6. Track your order on the confirmation page.
-7. Go to **My Account** to view all past orders and download a PDF receipt for any order.
-
-<img width="1882" height="488" alt="Screenshot 2026-05-15 123602" src="https://github.com/user-attachments/assets/367b1764-4ca0-4193-b348-153b0fa01c3c" />
-<img width="732" height="586" alt="Screenshot 2026-05-15 121739" src="https://github.com/user-attachments/assets/a4db94d2-57ee-4432-b998-2a20bcc45072" />
-<img width="1112" height="340" alt="Screenshot 2026-05-15 122400" src="https://github.com/user-attachments/assets/aa76ccae-d045-49d3-b9ee-6ca64a87252b" />
-
-
-**Admin:**
-1. Log in with `admin@foodwerk.ch` / `admin123`.
-2. Navigate to **Admin** in the navbar.
-3. Manage orders, menu availability, and specials.
-
-<img width="1270" height="329" alt="Screenshot 2026-05-15 123743" src="https://github.com/user-attachments/assets/f643a7b7-9d86-4f06-a391-c34822a612f6" />
-<img width="1727" height="761" alt="Screenshot 2026-05-15 123844" src="https://github.com/user-attachments/assets/c497f626-f207-4ce2-944e-b775b3407307" />
-
-
-
 ---
 
-# Testing
+👷 ## How to Use
+
+### Demo Accounts
+
+| Role     | Email               | Password    |
+|----------|---------------------|-------------|
+| Admin    | admin@foodwerk.ch   | admin123    |
+| Employee | max@foodwerk.ch     | employee123 |
+
+> [!NOTE]
+> To explore the customer-facing features, register a new account.
+
+
+
+### 🛒 Ordering Food
+
+1. Go to **Menu** and browse items by category
+2. Click any item to customize it (e.g. remove ingredients)
+3. Open **Cart** to review your order
+4. Click **Checkout**, select delivery or pickup, and fill in your details
+5. Enter a test card number and click **Pay Now**
+6. Track your order status on the confirmation page
+7. Visit **My Account** to view your order history and download a PDF receipt for any past order
+
+<img width="1882" alt="Menu overview" src="https://github.com/user-attachments/assets/367b1764-4ca0-4193-b348-153b0fa01c3c" />
+<img width="732" alt="Item customization" src="https://github.com/user-attachments/assets/a4db94d2-57ee-4432-b998-2a20bcc45072" />
+<img width="1112" alt="Checkout flow" src="https://github.com/user-attachments/assets/aa76ccae-d045-49d3-b9ee-6ca64a87252b" />
+
+### 🔧 Admin Panel
+
+1. Log in with `admin@foodwerk.ch` / `admin123`
+2. Click **Admin** in the navigation bar
+3. Manage orders, control menu item availability, and configure daily specials
+
+<img width="1270" alt="Admin navbar" src="https://github.com/user-attachments/assets/f643a7b7-9d86-4f06-a391-c34822a612f6" />
+<img width="1727" alt="Admin panel" src="https://github.com/user-attachments/assets/c497f626-f207-4ce2-944e-b775b3407307" />
+
+
+### 💳 Test Cards
+
+> [!IMPORTANT]
+> The payment page uses simulated card validation — no real payment is ever processed.
+
+| Card Number           | Brand      | Result          |
+|-----------------------|------------|-----------------|
+| `4242 4242 4242 4242` | Visa       | ✅ Always succeeds |
+| `5555 5555 5555 4444` | Mastercard | ✅ Always succeeds |
+| `4000 0000 0000 0002` | Visa       | ❌ Always declined |
+
+Use expiry `12/26` and CVV `123` with the success cards.
+
+## ⚠️ Testing
 
 Tests are split across six files and live in the `tests/` folder. The suite covers the most critical paths: authentication, cart logic, database persistence, menu queries, order management, and the full checkout flow — **15 tests** in total.
 
