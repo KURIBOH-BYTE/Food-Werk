@@ -160,7 +160,8 @@ employees can:
 
 ---
 ## 📈 Class Diagram
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/49b6e5f0-63eb-47a5-98cc-57759fb0f546" />
+
+<img width="1536" height="1024" alt="klassendiagramm" src="https://github.com/user-attachments/assets/ea4af0bb-ef5f-4b1e-97ab-c1cdae225bd0" />
 
 
 The class diagram shows the complete architecture of FoodWerk divided into four layers.
@@ -169,14 +170,14 @@ The class diagram shows the complete architecture of FoodWerk divided into four 
 
 The database classes are based on SQLModel and are stored directly in the SQLite database. The following entities are present:
 
-- User — User with role (admin, employee, customer)
-- DeliveryAddress — Delivery addresses of a user
-- Category — Menu categories (e.g. Burgers, Pizza)
-- Ingredient — Ingredients
-- MenuItem — Menu items with price, availability, and discount
-- MenuItemIngredient — Junction table between MenuItem and Ingredient
-- Order — A user's order
-- OrderItem — Individual line item within an order
+- **User** — User with role (`admin`, `employee`, `customer`)
+- **DeliveryAddress** — Delivery addresses of a user
+- **Category** — Menu categories (e.g. Burgers, Pizza)
+- **Ingredient** — Ingredients
+- **MenuItem** — Menu items with price, availability, and discount
+- **MenuItemIngredient** — Junction table between MenuItem and Ingredient
+- **Order** — A user's order
+- **OrderItem** — Individual line item within an order
 
 ## DAO Layer (Data Access Layer)
 
@@ -190,7 +191,7 @@ The DAO classes (Data Access Objects) are responsible for database access. All D
 
 ## Service Layer (Business Logic)
 
-The services contain the business logic. They use the DAOs for data access and inherit from `BaseService`.
+The services contain the business logic. `AuthService`, `MenuService` and `OrderService` use DAOs for data access and inherit from `BaseService`. `CartService`, `PaymentService` and `ReceiptService` are standalone helpers (in-memory, Stripe, PDF) and do not require database access.
 
 - **AuthService** — Registration, login, password management, delivery addresses
 - **MenuService** — Menu management, specials, discounts
@@ -208,6 +209,7 @@ The controllers mediate between the UI layer (NiceGUI Pages) and the services.
 - **ShoppingController** — Menu, shopping cart, order processing
 - **AdminController** — Order management, menu management, specials
 - **PaymentController** — Stripe Checkout flow
+- **ReceiptController** — PDF receipt generation for orders
   
 ---
 
