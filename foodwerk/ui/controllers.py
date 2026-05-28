@@ -21,6 +21,7 @@ from ..services.cart_service import CartService
 from ..services.menu_service import MenuService
 from ..services.order_service import OrderService
 from ..services.payment_service import PaymentService
+from ..services.receipt_service import ReceiptService
 
 
 # ---------------------------------------------------------------------------
@@ -314,3 +315,26 @@ class PaymentController:
     def save_pending_order(self, **kwargs) -> None:
         """Save order intent before redirecting to Stripe."""
         app.storage.user["pending_order"] = kwargs
+
+
+# ---------------------------------------------------------------------------
+# ReceiptController
+# ---------------------------------------------------------------------------
+
+class ReceiptController:
+    """Handles PDF receipt generation for orders."""
+
+    def __init__(
+        self,
+        receipt_service: ReceiptService,
+        order_service: OrderService,
+    ) -> None:
+        self._receipt = receipt_service
+        self._order = order_service
+
+    def generate_pdf(self, order_id: int) -> Optional[bytes]:
+        """Load order and generate a PDF receipt. Returns None if not found."""
+        order = self._order.get_by_id(order_id)
+        if not order:
+            return None
+        return self._receipt.generate_pdf(order)
