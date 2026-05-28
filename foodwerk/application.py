@@ -21,7 +21,7 @@ from .services.menu_service import MenuService
 from .services.order_service import OrderService
 from .services.payment_service import PaymentService
 from .services.receipt_service import ReceiptService
-from .ui.controllers import AdminController, AuthController, PaymentController, ShoppingController
+from .ui.controllers import AdminController, AuthController, PaymentController, ReceiptController, ShoppingController
 from .ui.pages import Pages
 
 
@@ -62,6 +62,7 @@ class FoodWerkApplication:
             order_service=order_service,
         )
         payment_ctrl = PaymentController(payment_service=payment_service, order_service=order_service)
+        receipt_ctrl = ReceiptController(receipt_service=receipt_service, order_service=order_service)
 
         # --- Pages ---
         self._pages = Pages(
@@ -69,8 +70,7 @@ class FoodWerkApplication:
             shopping=shopping_ctrl,
             admin=admin_ctrl,
             payment=payment_ctrl,
-            receipt=receipt_service,
-            order_service=order_service,
+            receipt=receipt_ctrl,
         )
 
     def run(self, host: str = "0.0.0.0", port: int = 8080, reload: bool = False) -> None:
