@@ -17,9 +17,7 @@ _PHONE_RE = re.compile(r"^\+?[\d\s\-\(\)]{7,20}$")
 _SPECIAL_RE = re.compile(r"[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?`~]")
 _NAME_RE = re.compile(r"^[A-Za-zÀ-öø-ÿ\s\-']+$")
 
-from .controllers import AdminController, AuthController, PaymentController, ShoppingController
-from ..services.receipt_service import ReceiptService
-from ..services.order_service import OrderService
+from .controllers import AdminController, AuthController, PaymentController, ReceiptController, ShoppingController
 from .components import (
     STATUS_LABELS, cart_item_row, menu_card, navbar, order_card,
 )
@@ -82,15 +80,13 @@ class Pages:
         shopping: ShoppingController,
         admin: AdminController,
         payment: PaymentController,
-        receipt: ReceiptService | None = None,
-        order_service: OrderService | None = None,
+        receipt: ReceiptController | None = None,
     ) -> None:
         self._auth = auth
         self._shopping = shopping
         self._admin = admin
         self._payment = payment
         self._receipt = receipt
-        self._order_service = order_service
 
     def register(self) -> None:
         """Wire all routes. Called once at startup from application.py."""
@@ -99,20 +95,18 @@ class Pages:
         shopping = self._shopping
         admin = self._admin
         payment = self._payment
-        receipt_svc = self._receipt
-        order_svc = self._order_service
+        receipt = self._receipt
 
         # ================================================================
         # RECEIPT DOWNLOAD (FastAPI endpoint — returns PDF bytes)
         # ================================================================
         @app.get("/receipt/{order_id}")
         def download_receipt(order_id: int) -> Response:
-            if not order_svc or not receipt_svc:
+            if not receipt:
                 return Response(content="Receipt service unavailable", status_code=503)
-            order = order_svc.get_by_id(order_id)
-            if not order:
+            pdf_bytes = receipt.generate_pdf(order_id)
+            if pdf_bytes is None:
                 return Response(content="Order not found", status_code=404)
-            pdf_bytes = receipt_svc.generate_pdf(order)
             return Response(
                 content=pdf_bytes,
                 media_type="application/pdf",
